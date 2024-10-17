@@ -1,0 +1,21 @@
+{
+  "profiles": {
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "Dry-Run": {
+      "commandName": "Project",
+      "commandLineArgs": "--dry-run",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Local"
+      }
+    },
+    "Regular": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Local"
+      }
+    }
+  }
+}
