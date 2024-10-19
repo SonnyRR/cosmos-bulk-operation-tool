@@ -28,6 +28,13 @@ sudo update-ca-trust
 ```
 💡 The certificate stores can differ in other linux distributions, the example above is for `RHEL` based distros.
 
+After you've updated the list of trusted certificates on the podman machine, logout of the `ssh` section and download the same certificate to your own machine, in order to import it there as well. Otherwise, you won't be able to establish a successful connection from your host machine (i.e., running this CLI tool) to the podman container. See https://learn.microsoft.com/en-us/azure/cosmos-db/emulator?tabs=ssl-netstd21#import-emulator-certificate for more information.
+
+```powershell
+# Assuming the host machine runs Windows, download it and install it under the Trusted Root CA.
+iwr https://localhost:4387/_explorer/emulator.pem -OutFile ~\Downloads\emulator.crt -SkipCertificateCheck
+```
+
 After you've spin up the container & trusted the development SSL cert, navigate to https://localhost:4387/_explorer/index.html in order to verify that the emulator is up and running.
 
 Useful resources:
