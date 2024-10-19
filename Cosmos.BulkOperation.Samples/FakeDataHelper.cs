@@ -12,7 +12,7 @@ namespace Cosmos.BulkOperation.Samples
     {
         private static readonly Faker FAKER = new();
         private static readonly IEnumerable<string> EMAIL_LIST = Enumerable.Range(1, 1500)
-            .Select(_ => FAKER.Internet.Email())
+            .Select(_ => FAKER.Internet.Email().ToLower())
             .ToArray();
 
         /// <summary>
@@ -41,15 +41,11 @@ namespace Cosmos.BulkOperation.Samples
                     r.Id = f.Random.Uuid();
                     r.UserId = f.PickRandom(EMAIL_LIST);
                     r.StartedAt = f.Date.Between(new DateTime(2018, 1, 1, 0, 0, 0, DateTimeKind.Utc), DateTime.Now);
-                    r.Duration = f.Date.Timespan(TimeSpan.FromHours(12));
+                    r.Duration = f.Date.Timespan(TimeSpan.FromHours(6));
                     r.Checkpoints = checkpointFaker.GenerateBetween(1, Enum.GetValues<Color>().Length);
                 });
 
-
-            // Generate a subset of fake records for a specific user, that we will work on later.
-            var userSpecificRunFaker = randomRunFaker.RuleFor(r => r.UserId, SAMPLE_USER_ID);
-
-            return [.. randomRunFaker.Generate(baseRecords), .. userSpecificRunFaker.Generate(userSpecificRecords)];
+            return [.. randomRunFaker.Generate(baseRecords), .. randomRunFaker.RuleFor(r => r.UserId, SAMPLE_USER_ID).Generate(userSpecificRecords)];
         }
     }
 }
