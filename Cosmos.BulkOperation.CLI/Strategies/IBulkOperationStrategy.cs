@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 namespace Cosmos.BulkOperation.CLI.Strategies
 {
     /// <summary>
-    /// A strategy, responsible for patching records in specific Cosmos DB containers.
+    /// A strategy, responsible for bulk operating on records in specific Cosmos DB containers.
     /// </summary>
-    public interface IContainerPatchStrategy
+    public interface IBulkOperationStrategy
     {
         /// <summary>
-        /// Evaluates the patching strategy.
+        /// Evaluates the bulk operation strategy.
         /// </summary>
         /// <param name="dryRun">
         /// A flag indicating that the changes should not be applied to the Cosmos DB resource.

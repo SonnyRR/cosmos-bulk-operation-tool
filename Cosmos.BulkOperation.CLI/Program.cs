@@ -19,7 +19,7 @@ namespace Cosmos.BulkOperation.CLI
         private static readonly List<Type> AvailableRecordMutationStrategyTypes = [.. Assembly
             .GetEntryAssembly()
             .GetTypes()
-            .Where(t => typeof(IContainerPatchStrategy).IsAssignableFrom(t)
+            .Where(t => typeof(IBulkOperationStrategy).IsAssignableFrom(t)
                         && !t.IsAbstract
                         && Attribute.IsDefined(t, typeof(SettingsKeyAttribute)))
             .OrderBy(t => t.Name)];
@@ -115,7 +115,7 @@ namespace Cosmos.BulkOperation.CLI
         /// </summary>
         /// <param name="applicationSettings">The application's main settings.</param>
         /// <returns>The strategy instance.</returns>
-        private static IContainerPatchStrategy GetPatchStrategyFromPrompt(ApplicationSettings applicationSettings)
+        private static IBulkOperationStrategy GetPatchStrategyFromPrompt(ApplicationSettings applicationSettings)
         {
             ArgumentNullException.ThrowIfNull(applicationSettings);
             ArgumentNullException.ThrowIfNull(applicationSettings.CosmosSettings);
@@ -162,7 +162,7 @@ namespace Cosmos.BulkOperation.CLI
 
             Log.Information("Creating instance of {@Strategy}", chosenStrategyType.Name);
 
-            return Activator.CreateInstance(chosenStrategyType, applicationSettings.CosmosSettings, containerSetting) as IContainerPatchStrategy;
+            return Activator.CreateInstance(chosenStrategyType, applicationSettings.CosmosSettings, containerSetting) as IBulkOperationStrategy;
         }
 
         /// <summary>
