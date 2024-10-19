@@ -4,6 +4,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.BulkOperation.CLI", "Cosmos.BulkOperation.CLI\Cosmos.BulkOperation.CLI.csproj", "{E47349C7-E31F-4B62-BD3E-9DD8128E0619}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cosmos.BulkOperation.Samples", "Cosmos.BulkOperation.Samples\Cosmos.BulkOperation.Samples.csproj", "{04750DAE-C25C-4E2B-A8DD-1203000BFB2D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -14,6 +16,10 @@ Global
 		{E47349C7-E31F-4B62-BD3E-9DD8128E0619}.Debug|x64.Build.0 = Debug|x64
 		{E47349C7-E31F-4B62-BD3E-9DD8128E0619}.Release|x64.ActiveCfg = Release|x64
 		{E47349C7-E31F-4B62-BD3E-9DD8128E0619}.Release|x64.Build.0 = Release|x64
+		{04750DAE-C25C-4E2B-A8DD-1203000BFB2D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{04750DAE-C25C-4E2B-A8DD-1203000BFB2D}.Debug|x64.Build.0 = Debug|Any CPU
+		{04750DAE-C25C-4E2B-A8DD-1203000BFB2D}.Release|x64.ActiveCfg = Release|Any CPU
+		{04750DAE-C25C-4E2B-A8DD-1203000BFB2D}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
