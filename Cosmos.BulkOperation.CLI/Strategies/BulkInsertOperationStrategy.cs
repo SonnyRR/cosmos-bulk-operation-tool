@@ -60,20 +60,20 @@ namespace Cosmos.BulkOperation.CLI.Strategies
             }
 
 #pragma warning disable IDE0018 // Inline variable declaration
-            List<Func<Task>> patchTasksForPartitionKey;
+            List<Func<Task>> insertTasksForPartitionKey;
 #pragma warning restore IDE0018 // Inline variable declaration
 
             foreach (var partition in recordsToInsert.GroupBy(r => partionKeyAccessor(r)))
             {
-                if (!PartitionedBulkTasks.TryGetValue(partition.Key, out patchTasksForPartitionKey))
+                if (!PartitionedBulkTasks.TryGetValue(partition.Key, out insertTasksForPartitionKey))
                 {
-                    patchTasksForPartitionKey = [];
-                    PartitionedBulkTasks.Add(partition.Key, patchTasksForPartitionKey);
+                    insertTasksForPartitionKey = [];
+                    PartitionedBulkTasks.Add(partition.Key, insertTasksForPartitionKey);
                 }
 
                 foreach (var record in partition)
                 {
-                    patchTasksForPartitionKey.Add(() => Insert(record, partition.Key.UnwrapPartitionKey(), null, ct));
+                    insertTasksForPartitionKey.Add(() => Insert(record, partition.Key.UnwrapPartitionKey(), null, ct));
                     TotalOperationsCount++;
                 }
             }
