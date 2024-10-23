@@ -50,7 +50,7 @@ namespace Cosmos.BulkOperation.CLI.Strategies
                     }
                     else if (task.Exception?.InnerException is CosmosException ex)
                     {
-                        Log.Error("Failed patch batch request: {@Message} | JSON: {@Json:j}", ex.Message, ex.Diagnostics);
+                        Log.Error("Failed delete batch request: {@Message}", ex.Message);
                         statusCode = ex.StatusCode;
                     }
 
