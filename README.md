@@ -18,7 +18,7 @@ The instructions below are for a containerized instance of it, but `Microsoft` p
 
 ```bash
 # Start a podman/docker container with the Azure Cosmos Emulator image.
-podman run -p 4387:8081 -p 10250-10255:10250-10255 --name azcdb -d mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
+podman run -p 4387:8081 -p 10250-10255:10250-10255 --name azcdb -d -e "AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true" mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
 
 # SSH into the machine and download the emulator's development certificate to the CA store.
 podman machine ssh
