@@ -70,7 +70,7 @@ namespace Cosmos.BulkOperation.CLI.Strategies
                     }
                     else if (task.Exception?.InnerException is CosmosException ex)
                     {
-                        Log.Error("Failed patch batch request: {@Message} | JSON: {@Json:j}", ex.Message, ex.Diagnostics);
+                        Log.Error("Failed patch batch request: {@Message}", ex.Message);
                         statusCode = ex.StatusCode;
                     }
 
@@ -92,30 +92,10 @@ namespace Cosmos.BulkOperation.CLI.Strategies
             List<PatchOperation> patchOperations,
             string recordId,
             TPartitionKeyType partitionKey,
-            string entityType,
-            string recordName = null,
             CancellationToken ct = default)
         {
             if (patchOperations.Count > 0)
             {
-                if (!string.IsNullOrWhiteSpace(recordName))
-                {
-                    Log.Debug("Queuing patches for '{@EntityType}': '{@Id}'| Name: '{@RecordName}' | Part. Key: '{@PartitionKey}' | Patch operations: {@PatchOpCount}",
-                        entityType,
-                        recordId,
-                        recordName,
-                        partitionKey,
-                        patchOperations.Count);
-                }
-                else
-                {
-                    Log.Debug("Queuing patches for '{@EntityType}': '{@Id}' | Part. Key: '{@PartitionKey}' | Patch operations: {@PatchOpCount}",
-                        entityType,
-                        recordId,
-                        partitionKey,
-                        patchOperations.Count);
-                }
-
 #pragma warning disable IDE0018 // Inline variable declaration
                 List<Func<Task>> patchTasksForPartitionKey;
 #pragma warning restore IDE0018 // Inline variable declaration
