@@ -9,6 +9,9 @@ namespace Cosmos.BulkOperation.CLI.Strategies
     /// <summary>
     /// A sample strategy for bulk deleting dummy test data.
     /// </summary>
+    /// <remarks>
+    /// Deletes all records matching the query.
+    /// </remarks>
     /// <inheritdoc cref="BulkDeleteOperationStrategy{Run, PartitionKeyType.StringPartitionKey}"/>
     [SettingsKey("RunSettings")]
     public class SampleRecordsDeletionStrategy : BulkDeleteOperationStrategy<Run, PartitionKeyType.StringPartitionKey>
