@@ -42,7 +42,7 @@ namespace Cosmos.BulkOperation.CLI
 
                     ConfigureSerilog(rootApplicationConfiguration);
 
-                    Log.Information("========= Cosmos DB Bulk Operation CLI tool =========");
+                    Log.Information("=========== Cosmos DB Bulk Operation CLI tool ===========");
                     Log.Information("=========== Author: Vasil Kotsev | 26/09/2024 ===========");
 
                     if (cliArguments.DryRun)
