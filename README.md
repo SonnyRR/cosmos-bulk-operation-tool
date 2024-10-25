@@ -1,7 +1,7 @@
 # 🌌 Azure Cosmos DB Bulk Operation CLI Tool
 [![Build](https://github.com/SonnyRR/cosmos-bulk-operation-tool/actions/workflows/dotnet.yml/badge.svg)](https://github.com/SonnyRR/cosmos-bulk-operation-tool/actions/workflows/dotnet.yml)
 
-Custom CLI tool, written in `C#`, for bulk updating/inserting & deleting Azure Cosmos Database records. It leverages the Azure Cosmos DB SDK, Bulk Executor context, Patch API and other performant configurations. It aims to serve as a showcase of best practices for working with the SDK for throughput performant workloads. 
+Custom CLI tool, written in `C#`, for bulk updating/inserting & deleting Azure Cosmos Database records. It leverages the Azure Cosmos DB SDK, Bulk Executor context, Patch API and other performant configurations. It aims to serve as a showcase of best practices for working with the SDK for throughput performant workloads and as a starting point for any real-world bulk operation scenarios. 
 
 Motivation behind this project was the lack of a simple way of mutating a lot of records. Microsoft don't support
 common create/update/delete operations with a SQL like syntax, so you're pretty much left with the Cosmos SDK, stored procedures (which have their own limitations and caveats) or the [Azure Cosmos DB Desktop Data Migration Tool](https://github.com/AzureCosmosDB/data-migration-desktop-tool) which can be extended with custom extensions.
@@ -16,7 +16,7 @@ The tool can be extended with custom strategies and utilized for real production
 In case you want to try this tool in an isolated environment you will need to spin up an instance of the `Azure Cosmos Emulator`.
 The instructions below are for a containerized instance of it, but `Microsoft` provide a native Windows installation, which you can find [here](https://learn.microsoft.com/en-us/azure/cosmos-db/emulator-release-notes).
 
-```bash
+```shell
 # Start a podman/docker container with the Azure Cosmos Emulator image.
 podman run -p 4387:8081 -p 10250-10255:10250-10255 --name azcdb -d -e "AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true" mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:latest
 
@@ -63,3 +63,18 @@ Logs are rolled on a daily basis by default on the following path: `"%USERPROFIL
 
 ## 🔁 Retry policy
 By default all Cosmos DB operations in this tool are wrapped around a fallback exponential retry policy. The default timespan intervals (in seconds) are: `2, 4, 8, 16 & 32`. Before kicking off those custom policies, the SDK is configured to automatically retry any throttled requests (by default 25 times).
+
+## 🥏 Strategies
+The application makes use of custom bulk update strategies in order to perform the data manipulation operations against a given container.
+Currently, there are `4` base bulk operation strategies, that can be used for extension:
+* `BaseBulkOperationStrategy.cs`
+* `BulkDeleteOperationStrategy.cs`
+* `BulkInsertOperationStrategy.cs`
+* `BulkPatchOperationStrategy.cs`
+
+Alongside with the base clasesses, I've included 3 sample strategies, that rely on fake data generated with `Bogus` and cover some common use case scenarios such as bulk insert, bulk update, bulk delete. These are the strategies that you can choose by default when you run the application.
+* `SampleRecordsDeletionStrategy.cs`
+* `SampleRecordsInsertionStrategy.cs`
+* `SampleRecordsPatchStrategy.cs`
+
+The strategies can be found under the `Cosmos.BulkOperation.CLI.Strategies` namespace.
