@@ -10,7 +10,7 @@
 	<ItemGroup>
 		<PackageReference Include="CommandLineParser" Version="2.9.1" />
 		<PackageReference Include="Destructurama.Attributed" Version="4.0.0" />
-		<PackageReference Include="Microsoft.Azure.Cosmos" Version="3.45.0" />
+		<PackageReference Include="Microsoft.Azure.Cosmos" Version="3.45.1" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 		<PackageReference Include="Polly" Version="8.4.2" />
 		<PackageReference Include="Roslynator.Analyzers" Version="4.12.9">
