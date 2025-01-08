@@ -5,6 +5,8 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<Platforms>x64</Platforms>
 		<Copyright>Copyright (C) 2024 Vasil Kotsev</Copyright>
+		<!--If you decide to use Newtonsoft JSON pkg for serialization disable this check and install the dependency explicitly.-->
+		<AzureCosmosDisableNewtonsoftJsonCheck>true</AzureCosmosDisableNewtonsoftJsonCheck>
 	</PropertyGroup>
 
 	<ItemGroup>
