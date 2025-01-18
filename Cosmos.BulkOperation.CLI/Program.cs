@@ -172,7 +172,7 @@ namespace Cosmos.BulkOperation.CLI
         /// <returns>An instance of <see cref="ApplicationSettings"/>.</returns>
         private static ApplicationSettings GetApplicationSettings(IConfigurationRoot settings)
         {
-            ArgumentNullException.ThrowIfNull(nameof(settings));
+            ArgumentNullException.ThrowIfNull(settings);
 
             var cosmosSettings = settings.GetRequiredSection(nameof(CosmosSettings)).Get<CosmosSettings>();
             var rootContainerSettingsSection = settings.GetRequiredSection("ContainerSettings");
