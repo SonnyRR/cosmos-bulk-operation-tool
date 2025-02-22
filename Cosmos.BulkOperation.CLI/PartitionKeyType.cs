@@ -31,6 +31,14 @@ namespace Cosmos.BulkOperation.CLI
             public int GetHashCode([DisallowNull] StringPartitionKey obj) => obj.GetHashCode();
         }
 
-        private PartitionKeyType() { }
+		public record HierarchicalPartitionKey(string FirstKey, string SecondKey, string ThirdKey) : PartitionKeyType(), IEqualityComparer<HierarchicalPartitionKey>
+		{
+			public bool Equals(HierarchicalPartitionKey x, HierarchicalPartitionKey y)
+                => x.FirstKey == y.FirstKey && x.SecondKey == y.SecondKey && x.ThirdKey == y.ThirdKey;
+
+			public int GetHashCode([DisallowNull] HierarchicalPartitionKey obj) => obj.GetHashCode();
+		}
+
+		private PartitionKeyType() { }
     }
 }
