@@ -85,8 +85,6 @@ namespace Cosmos.BulkOperation.CLI.Strategies
         /// <param name="patchOperations">The patch operations.</param>
         /// <param name="recordId">The record's unique identifier.</param>
         /// <param name="partitionKey">The partition key value.</param>
-        /// <param name="entityType">The entity type.</param>
-        /// <param name="recordName">The record's name or title.</param>
         /// <param name="ct">The cancellation token.</param>
         protected void QueuePatchOperationTasks(
             List<PatchOperation> patchOperations,

@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 namespace Cosmos.BulkOperation.CLI.Strategies
 {
     /// <summary>
-    /// Represents a base bulk operation strategy with some common methods & properties.
+    /// Represents a base bulk operation strategy with some common methods &amp; properties.
     /// </summary>
     /// <typeparam name="TRecord">The container's item model.</typeparam>
     /// <inheritdoc cref="IBulkOperationStrategy"/>
@@ -28,7 +28,7 @@ namespace Cosmos.BulkOperation.CLI.Strategies
         protected int TotalOperationsCount;
 
         /// <summary>
-        /// Sets up the strategy's database & container settings.
+        /// Sets up the strategy's database &amp; container settings.
         /// </summary>
         /// <param name="cosmosSettings">The cosmos settings.</param>
         /// <param name="containerSettings">The container's settings.</param>

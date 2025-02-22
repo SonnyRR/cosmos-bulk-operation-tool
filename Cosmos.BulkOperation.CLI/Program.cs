@@ -111,7 +111,7 @@ namespace Cosmos.BulkOperation.CLI
                 .Build();
 
         /// <summary>
-        /// Prompts the user to select which strategy he wants to evaluate & creates an instance of it.
+        /// Prompts the user to select which strategy he wants to evaluate &amp; creates an instance of it.
         /// </summary>
         /// <param name="applicationSettings">The application's main settings.</param>
         /// <returns>The strategy instance.</returns>
