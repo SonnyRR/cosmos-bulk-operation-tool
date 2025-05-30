@@ -1,9 +1,4 @@
-﻿using Cosmos.BulkOperation.CLI.Handlers;
-using Cosmos.BulkOperation.CLI.Settings;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Fluent;
-using Serilog;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +7,11 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Cosmos.BulkOperation.CLI.Handlers;
+using Cosmos.BulkOperation.CLI.Settings;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Fluent;
+using Serilog;
 
 namespace Cosmos.BulkOperation.CLI.Strategies
 {
@@ -144,6 +144,8 @@ namespace Cosmos.BulkOperation.CLI.Strategies
                 return;
             }
 
+            var semaphore = new SemaphoreSlim(5);
+
             // Create one worker task per partition key, each worker will coordinate tasks for all patch tasks for the current user.
             // If bulk support is enabled (which should be in this app) the SDK will create batches, all the concurrent operations
             // will be grouped by physical partition affinity and distributed across these batches. When a batch fills up, it gets
@@ -154,7 +156,20 @@ namespace Cosmos.BulkOperation.CLI.Strategies
             // the smaller the documents, the greater the optimization that can be achieved (the bigger the documents, the more batches need to be used).
             //
             // See https://devblogs.microsoft.com/cosmosdb/introducing-bulk-support-in-the-net-sdk/
-            await Task.WhenAll(PartitionedBulkTasks.Select(async kvp => await Task.WhenAll(kvp.Value.Select(v => v()))));
+            //
+            await Task.WhenAll(PartitionedBulkTasks.Select(async kvp =>
+            {
+                await semaphore.WaitAsync();
+
+                try
+                {
+                    await Task.WhenAll(kvp.Value.Select(v => v()));
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }));
         }
 
         /// <summary>
