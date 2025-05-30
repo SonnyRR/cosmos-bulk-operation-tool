@@ -1,11 +1,11 @@
+using Cosmos.BulkOperation.CLI.Settings;
+using Cosmos.BulkOperation.Samples;
+using Microsoft.Azure.Cosmos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Cosmos.BulkOperation.CLI.Settings;
-using Cosmos.BulkOperation.Samples;
-using Microsoft.Azure.Cosmos;
 
 namespace Cosmos.BulkOperation.CLI.Strategies
 {
@@ -26,7 +26,7 @@ namespace Cosmos.BulkOperation.CLI.Strategies
 
         public override async Task EvaluateAsync(bool dryRun = false, CancellationToken ct = default)
         {
-            var feed = GetFeedIterator();
+            var feed = this.GetFeedIterator();
             while (feed.HasMoreResults)
             {
                 var page = await feed.ReadNextAsync(ct);
@@ -40,7 +40,7 @@ namespace Cosmos.BulkOperation.CLI.Strategies
                         patchOperations.Add(patchOperation);
                     }
 
-                    QueuePatchOperationTasks(patchOperations, run.Id.ToString(), new(run.UserId), ct);
+                    this.QueuePatchOperationTasks(patchOperations, run.Id.ToString(), new(run.UserId), ct);
                 }
             }
 

@@ -1,8 +1,8 @@
+using Cosmos.BulkOperation.CLI.Settings;
+using Cosmos.BulkOperation.Samples;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Cosmos.BulkOperation.CLI.Settings;
-using Cosmos.BulkOperation.Samples;
 
 namespace Cosmos.BulkOperation.CLI.Strategies
 {
@@ -25,14 +25,14 @@ namespace Cosmos.BulkOperation.CLI.Strategies
         {
             var recordsToDelete = new List<Run>();
 
-            var feed = GetFeedIterator();
+            var feed = this.GetFeedIterator();
             while (feed.HasMoreResults)
             {
                 var row = await feed.ReadNextAsync(ct);
                 recordsToDelete.AddRange(row.Resource);
             }
 
-            QueueDeletionOperationTasks(recordsToDelete, r => r.Id.ToString(), r => new(r.UserId), ct);
+            this.QueueDeletionOperationTasks(recordsToDelete, r => r.Id.ToString(), r => new(r.UserId), ct);
             await base.EvaluateAsync(dryRun, ct);
         }
     }

@@ -1,4 +1,4 @@
-﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos;
 using Serilog;
 using System.Threading;
 using System.Threading.Tasks;

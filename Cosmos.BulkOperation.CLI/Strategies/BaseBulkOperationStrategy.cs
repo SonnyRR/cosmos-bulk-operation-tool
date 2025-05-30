@@ -1,4 +1,9 @@
-﻿using System;
+using Cosmos.BulkOperation.CLI.Handlers;
+using Cosmos.BulkOperation.CLI.Settings;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Fluent;
+using Serilog;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,11 +12,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using Cosmos.BulkOperation.CLI.Handlers;
-using Cosmos.BulkOperation.CLI.Settings;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Fluent;
-using Serilog;
 
 namespace Cosmos.BulkOperation.CLI.Strategies
 {
@@ -36,16 +36,16 @@ namespace Cosmos.BulkOperation.CLI.Strategies
         /// <exception cref="ArgumentNullException"></exception>
         protected BaseBulkOperationStrategy(CosmosSettings cosmosSettings, ContainerSettings containerSettings, bool useSystemTextJson = false)
         {
-            CosmosSettings = cosmosSettings ?? throw new ArgumentNullException(nameof(cosmosSettings));
-            ContainerSettings = containerSettings ?? throw new ArgumentNullException(nameof(containerSettings));
+            this.CosmosSettings = cosmosSettings ?? throw new ArgumentNullException(nameof(cosmosSettings));
+            this.ContainerSettings = containerSettings ?? throw new ArgumentNullException(nameof(containerSettings));
 
-            CosmosClient = GetCosmosClient(cosmosSettings, useSystemTextJson);
+            this.CosmosClient = GetCosmosClient(cosmosSettings, useSystemTextJson);
         }
 
         /// <summary>
         /// Retrieves the Cosmos DB container instance.
         /// </summary>
-        protected Container Container => Database.GetContainer(ContainerSettings.ContainerName);
+        protected Container Container => this.Database.GetContainer(this.ContainerSettings.ContainerName);
 
         /// <summary>
         /// The Cosmos DB container's settings.
@@ -65,7 +65,7 @@ namespace Cosmos.BulkOperation.CLI.Strategies
         /// <summary>
         /// The Cosmos DB database.
         /// </summary>
-        protected Database Database => CosmosClient.GetDatabase(CosmosSettings.DatabaseName);
+        protected Database Database => this.CosmosClient.GetDatabase(this.CosmosSettings.DatabaseName);
 
         /// <summary>
         /// Total HTTP responses received, grouped by HTTP status codes.
@@ -79,16 +79,16 @@ namespace Cosmos.BulkOperation.CLI.Strategies
 
         public virtual async Task EvaluateAsync(bool dryRun = false, CancellationToken ct = default)
         {
-            Log.Information("Total operations queued: {@PatchesCount}", TotalOperationsCount);
+            Log.Information("Total operations queued: {@PatchesCount}", this.TotalOperationsCount);
 
-            if (PartitionedBulkTasks.Count > 0)
+            if (this.PartitionedBulkTasks.Count > 0)
             {
-                await EvaluateBatchTasksAsync(dryRun);
-                PartitionedBulkTasks.Clear();
+                await this.EvaluateBatchTasksAsync(dryRun);
+                this.PartitionedBulkTasks.Clear();
             }
 
-            Log.Information("Total completed tasks: {@CompletedTasks}", CompletedTasksCount);
-            foreach (var response in HttpResponses)
+            Log.Information("Total completed tasks: {@CompletedTasks}", this.CompletedTasksCount);
+            foreach (var response in this.HttpResponses)
             {
                 Log.Information("{@StatusCode} - {@Count}", response.Key, response.Value);
             }
@@ -157,7 +157,7 @@ namespace Cosmos.BulkOperation.CLI.Strategies
             //
             // See https://devblogs.microsoft.com/cosmosdb/introducing-bulk-support-in-the-net-sdk/
             //
-            await Task.WhenAll(PartitionedBulkTasks.Select(async kvp =>
+            await Task.WhenAll(this.PartitionedBulkTasks.Select(async kvp =>
             {
                 await semaphore.WaitAsync();
 
@@ -179,7 +179,7 @@ namespace Cosmos.BulkOperation.CLI.Strategies
         /// Custom query request options, if not provided it will fallback to the global default query request options.
         /// </param>
         /// <returns>An instance of <see cref="FeedIterator{TRecord}"/></returns>
-        protected FeedIterator<TRecord> GetFeedIterator(QueryRequestOptions queryRequestOptions = null) => Container
-            .GetItemQueryIterator<TRecord>(ContainerSettings.Query.Value, requestOptions: queryRequestOptions ?? CosmosSettings.QueryRequestOptions);
+        protected FeedIterator<TRecord> GetFeedIterator(QueryRequestOptions queryRequestOptions = null) => this.Container
+            .GetItemQueryIterator<TRecord>(this.ContainerSettings.Query.Value, requestOptions: queryRequestOptions ?? this.CosmosSettings.QueryRequestOptions);
     }
 }

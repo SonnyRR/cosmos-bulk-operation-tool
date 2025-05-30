@@ -1,4 +1,4 @@
-﻿using Destructurama.Attributed;
+using Destructurama.Attributed;
 using Microsoft.Azure.Cosmos;
 using System;
 

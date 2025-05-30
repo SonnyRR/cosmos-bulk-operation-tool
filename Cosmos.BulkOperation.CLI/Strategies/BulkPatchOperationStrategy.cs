@@ -1,13 +1,13 @@
+using Cosmos.BulkOperation.CLI.Extensions;
+using Cosmos.BulkOperation.CLI.Settings;
+using Microsoft.Azure.Cosmos;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Cosmos.BulkOperation.CLI.Extensions;
-using Cosmos.BulkOperation.CLI.Settings;
-using Microsoft.Azure.Cosmos;
-using Serilog;
 
 namespace Cosmos.BulkOperation.CLI.Strategies
 {
@@ -46,26 +46,26 @@ namespace Cosmos.BulkOperation.CLI.Strategies
         /// <param name="ct">The cancellation token.</param>
         /// <returns>An instance of <see cref="Task"/>.</returns>
         protected virtual Task Patch(string recordId, PartitionKey partitionKeyValue, IReadOnlyList<PatchOperation> operations, CancellationToken ct = default)
-            => Container
+            => this.Container
                 .PatchItemAsync<TRecord>(
                     recordId,
                     partitionKeyValue,
                     operations,
-                    patchItemRequestOptions,
+                    this.patchItemRequestOptions,
                     ct)
                 .ContinueWith(task =>
                 {
                     HttpStatusCode statusCode = HttpStatusCode.MisdirectedRequest;
                     if (task.IsCompletedSuccessfully)
                     {
-                        Interlocked.Increment(ref CompletedTasksCount);
+                        Interlocked.Increment(ref this.CompletedTasksCount);
                         var response = task.Result;
 
                         // The batches referenced here are not the batches, which the Cosmos DB SDK creates
                         // behind the scenes when Bulk operations are enabled. Those batches can contain up to 100
                         // operations or 2MB of data. This means that an actual cosmos batch can contain 10 of these tasks.
                         // (10 TPL tasks w/ 10 max operations per task)
-                        Log.Information("({@Count}) Processed batch for: '{@RecordId}' - HTTP {@Status} | RU: {@RU}", CompletedTasksCount, recordId, (int)response.StatusCode, response.RequestCharge);
+                        Log.Information("({@Count}) Processed batch for: '{@RecordId}' - HTTP {@Status} | RU: {@RU}", this.CompletedTasksCount, recordId, (int)response.StatusCode, response.RequestCharge);
                         statusCode = task.Result.StatusCode;
                     }
                     else if (task.Exception?.InnerException is CosmosException ex)
@@ -74,7 +74,7 @@ namespace Cosmos.BulkOperation.CLI.Strategies
                         statusCode = ex.StatusCode;
                     }
 
-                    HttpResponses.AddOrUpdate(statusCode, 1, (_, old) => old + 1);
+                    this.HttpResponses.AddOrUpdate(statusCode, 1, (_, old) => old + 1);
                     task.Dispose();
                 },
                 ct);
@@ -98,19 +98,19 @@ namespace Cosmos.BulkOperation.CLI.Strategies
                 List<Func<Task>> patchTasksForPartitionKey;
 #pragma warning restore IDE0018 // Inline variable declaration
 
-                if (!PartitionedBulkTasks.TryGetValue(partitionKey, out patchTasksForPartitionKey))
+                if (!this.PartitionedBulkTasks.TryGetValue(partitionKey, out patchTasksForPartitionKey))
                 {
                     patchTasksForPartitionKey = [];
-                    PartitionedBulkTasks.Add(partitionKey, patchTasksForPartitionKey);
+                    this.PartitionedBulkTasks.Add(partitionKey, patchTasksForPartitionKey);
                 }
 
                 // https://learn.microsoft.com/en-us/azure/cosmos-db/partial-document-update-faq#is-there-a-limit-to-the-number-of-partial-document-update-operations-
                 foreach (var patchOperationsBatch in patchOperations.Chunk(MAX_OPERATIONS_PER_PATCH))
                 {
-                    patchTasksForPartitionKey.Add(() => Patch(recordId, partitionKey.UnwrapPartitionKey(), patchOperationsBatch, ct));
+                    patchTasksForPartitionKey.Add(() => this.Patch(recordId, partitionKey.UnwrapPartitionKey(), patchOperationsBatch, ct));
                 }
 
-                TotalOperationsCount += patchOperations.Count;
+                this.TotalOperationsCount += patchOperations.Count;
             }
         }
     }

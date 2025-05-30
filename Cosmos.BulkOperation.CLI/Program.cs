@@ -1,6 +1,6 @@
-﻿using Cosmos.BulkOperation.CLI.Settings;
-using Cosmos.BulkOperation.CLI.Strategies;
 using CommandLine;
+using Cosmos.BulkOperation.CLI.Settings;
+using Cosmos.BulkOperation.CLI.Strategies;
 using Microsoft.Extensions.Configuration;
 using Serilog;
 using System;

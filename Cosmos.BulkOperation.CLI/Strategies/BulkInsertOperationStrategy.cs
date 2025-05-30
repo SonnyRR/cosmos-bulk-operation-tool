@@ -1,13 +1,13 @@
+using Cosmos.BulkOperation.CLI.Extensions;
+using Cosmos.BulkOperation.CLI.Settings;
+using Microsoft.Azure.Cosmos;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Cosmos.BulkOperation.CLI.Extensions;
-using Cosmos.BulkOperation.CLI.Settings;
-using Microsoft.Azure.Cosmos;
-using Serilog;
 
 namespace Cosmos.BulkOperation.CLI.Strategies
 {
@@ -27,17 +27,17 @@ namespace Cosmos.BulkOperation.CLI.Strategies
         }
 
         protected Task Insert(TRecord item, PartitionKey partitionKeyValue, ItemRequestOptions itemRequestOptions = null, CancellationToken ct = default)
-            => Container
+            => this.Container
                 .CreateItemAsync(item, partitionKeyValue, itemRequestOptions, ct)
                 .ContinueWith(task =>
                 {
                     HttpStatusCode statusCode = HttpStatusCode.MisdirectedRequest;
                     if (task.IsCompletedSuccessfully)
                     {
-                        Interlocked.Increment(ref CompletedTasksCount);
+                        Interlocked.Increment(ref this.CompletedTasksCount);
                         var response = task.Result;
 
-                        Log.Information("({@Count}) Processed batch - HTTP {@Status} | RU: {@RU}", CompletedTasksCount, (int)response.StatusCode, response.RequestCharge);
+                        Log.Information("({@Count}) Processed batch - HTTP {@Status} | RU: {@RU}", this.CompletedTasksCount, (int)response.StatusCode, response.RequestCharge);
                         statusCode = task.Result.StatusCode;
                     }
                     else if (task.Exception?.InnerException is CosmosException ex)
@@ -46,7 +46,7 @@ namespace Cosmos.BulkOperation.CLI.Strategies
                         statusCode = ex.StatusCode;
                     }
 
-                    HttpResponses.AddOrUpdate(statusCode, 1, (_, old) => old + 1);
+                    this.HttpResponses.AddOrUpdate(statusCode, 1, (_, old) => old + 1);
                     task.Dispose();
                 },
                 ct);
@@ -65,16 +65,16 @@ namespace Cosmos.BulkOperation.CLI.Strategies
 
             foreach (var partition in recordsToInsert.GroupBy(r => partionKeyAccessor(r)))
             {
-                if (!PartitionedBulkTasks.TryGetValue(partition.Key, out insertTasksForPartitionKey))
+                if (!this.PartitionedBulkTasks.TryGetValue(partition.Key, out insertTasksForPartitionKey))
                 {
                     insertTasksForPartitionKey = [];
-                    PartitionedBulkTasks.Add(partition.Key, insertTasksForPartitionKey);
+                    this.PartitionedBulkTasks.Add(partition.Key, insertTasksForPartitionKey);
                 }
 
                 foreach (var record in partition)
                 {
-                    insertTasksForPartitionKey.Add(() => Insert(record, partition.Key.UnwrapPartitionKey(), null, ct));
-                    TotalOperationsCount++;
+                    insertTasksForPartitionKey.Add(() => this.Insert(record, partition.Key.UnwrapPartitionKey(), null, ct));
+                    this.TotalOperationsCount++;
                 }
             }
         }

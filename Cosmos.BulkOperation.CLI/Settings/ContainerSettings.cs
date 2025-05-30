@@ -1,4 +1,4 @@
-﻿namespace Cosmos.BulkOperation.CLI.Settings
+namespace Cosmos.BulkOperation.CLI.Settings
 {
     /// <summary>
     /// Cosmos DB container settings.
