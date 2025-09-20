@@ -17,7 +17,7 @@ namespace Cosmos.BulkOperation.CLI
         private const string APP_EXIT_USER_INPUT = "e";
 
         private static readonly List<Type> AvailableRecordMutationStrategyTypes = [.. Assembly
-            .GetEntryAssembly()
+            .GetExecutingAssembly()
             .GetTypes()
             .Where(t => typeof(IBulkOperationStrategy).IsAssignableFrom(t)
                         && !t.IsAbstract
