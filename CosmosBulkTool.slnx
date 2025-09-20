@@ -6,4 +6,5 @@
     <Platform Project="x64" />
   </Project>
   <Project Path="Cosmos.BulkOperation.Samples/Cosmos.BulkOperation.Samples.csproj" />
+  <Project Path="Cosmos.BulkOperation.Tests/Cosmos.BulkOperation.Tests.csproj" />
 </Solution>
