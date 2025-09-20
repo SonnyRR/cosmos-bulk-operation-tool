@@ -18,7 +18,7 @@ namespace Cosmos.BulkOperation.Samples
         /// <summary>
         /// A user specific email address, used for identifying which records will be bulk operated on.
         /// </summary>
-        /// <remarks>Used only for testing & sample purposes only.</remarks>
+        /// <remarks>Used only for testing &amp; sample purposes only.</remarks>
         public const string SAMPLE_USER_ID = "carmella@sopranos.com";
 
         /// <summary>
