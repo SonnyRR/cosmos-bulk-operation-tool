@@ -39,6 +39,27 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="appsettings.Production.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.Staging.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.Development.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.Local.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+        <None Update="appsettings.Testing.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    <None Update="appsettings.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Cosmos.BulkOperation.Samples\Cosmos.BulkOperation.Samples.csproj" />
   </ItemGroup>
 </Project>
