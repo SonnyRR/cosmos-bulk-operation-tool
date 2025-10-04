@@ -1,19 +1,22 @@
-using Cosmos.BulkOperation.Tests;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Testcontainers.CosmosDb;
 using Testcontainers.Xunit;
 using Xunit.Sdk;
 
-[assembly: AssemblyFixture(typeof(CosmosDatabaseFixture))]
-
-namespace Cosmos.BulkOperation.Tests
+namespace Cosmos.BulkOperation.Tests.Fixtures
 {
     /// <summary>
     /// A xUnit fixture with a pre-defined Cosmos Database container.
     /// </summary>
     public class CosmosDatabaseFixture : ContainerFixture<CosmosDbBuilder, CosmosDbContainer>
     {
+        /// <summary>
+        /// The Cosmos client.
+        /// </summary>
         private CosmosClient client;
 
         /// <summary>
@@ -34,15 +37,28 @@ namespace Cosmos.BulkOperation.Tests
                 .WithPortBinding(10253, 10253)
                 .WithPortBinding(10254, 10254)
                 .WithPortBinding(10255, 10255)
+                .WithReuse(true)
+                .WithEnvironment("AZURE_COSMOS_EMULATOR_PARTITION_COUNT", "2")
                 .WithEnvironment("AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE", "true");
         }
 
+        /// <inheritdoc/>
+        protected override async ValueTask InitializeAsync()
+        {
+            Utils.UseEnvironment("Testing");
+            await base.InitializeAsync();
+        }
+
+        /// <summary>
+        /// Retrieves a Cosmos client for the test container.
+        /// </summary>
+        /// <returns>An instance of <see cref="CosmosClient"/>.</returns>
         public CosmosClient GetClient()
         {
             this.client ??= new CosmosClientBuilder(this.Container.GetConnectionString())
                 .WithBulkExecution(true)
                 .WithRequestTimeout(TimeSpan.FromSeconds(15))
-                .WithConnectionModeDirect()
+                .WithConnectionModeGateway() // Direct connection mode is not supported by the linux image.
                 .WithLimitToEndpoint(true)
                 .WithHttpClientFactory(() => new HttpClient(new HttpClientHandler()
                 {
