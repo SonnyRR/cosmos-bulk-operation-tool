@@ -10,182 +10,216 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Cosmos.BulkOperation.CLI
-{
-    public static class Program
-    {
-        private const string APP_EXIT_USER_INPUT = "e";
+namespace Cosmos.BulkOperation.CLI;
 
-        private static readonly List<Type> AvailableRecordMutationStrategyTypes = [.. Assembly
+/// <summary>
+/// The main program.
+/// </summary>
+public static class Program
+{
+    private const string APP_EXIT_USER_INPUT = "e";
+
+    private static readonly List<Type> AvailableRecordMutationStrategyTypes =
+    [
+        .. Assembly
             .GetExecutingAssembly()
             .GetTypes()
             .Where(t => typeof(IBulkOperationStrategy).IsAssignableFrom(t)
                         && !t.IsAbstract
                         && Attribute.IsDefined(t, typeof(SettingsKeyAttribute)))
-            .OrderBy(t => t.Name)];
+            .OrderBy(t => t.Name)
+    ];
 
-        public static async Task Main(string[] args)
+    /// <summary>
+    /// The entry point of the CLI tool.
+    /// </summary>
+    public static async Task Main(string[] args)
+    {
+        // Set up a cancellation token source when the user forcibly
+        // tries to stop the application with CTRL+C.
+        using var cancellationTokenSource = new CancellationTokenSource();
+        Console.CancelKeyPress += (s, e) =>
         {
-            // Set up a cancellation token source when the user forcibly
-            // tries to stop the application with CTRL+C.
-            using var cancellationTokenSource = new CancellationTokenSource();
-            Console.CancelKeyPress += (s, e) =>
+            cancellationTokenSource.Cancel();
+            e.Cancel = true;
+        };
+
+        await Parser.Default.ParseArguments<Arguments>(args)
+            .WithParsedAsync(async cliArguments =>
             {
-                cancellationTokenSource.Cancel();
-                e.Cancel = true;
-            };
+                var rootApplicationConfiguration = GetRootConfiguration();
 
-            await Parser.Default.ParseArguments<Arguments>(args)
-                .WithParsedAsync(async cliArguments =>
+                ConfigureSerilog(rootApplicationConfiguration);
+
+                Log.Information("=========== Cosmos DB Bulk Operation CLI tool ===========");
+                Log.Information("=========== Author: Vasil Kotsev | 26/09/2024 ===========");
+
+                if (cliArguments.DryRun)
                 {
-                    var rootApplicationConfiguration = GetRootConfiguration();
+                    Log.Warning("Dry-run mode enabled.");
+                }
 
-                    ConfigureSerilog(rootApplicationConfiguration);
+                // Give some time for the logs to be flushed before the confirmation prompt.
+                Thread.Sleep(500);
 
-                    Log.Information("=========== Cosmos DB Bulk Operation CLI tool ===========");
-                    Log.Information("=========== Author: Vasil Kotsev | 26/09/2024 ===========");
+                IBulkOperationStrategy strategy;
+                var appSettings = GetApplicationSettings(rootApplicationConfiguration);
 
-                    if (cliArguments.DryRun)
-                    {
-                        Log.Warning("Dry-run mode enabled.");
-                    }
+                if (!string.IsNullOrWhiteSpace(cliArguments.Strategy))
+                {
+                    var strategyClrType =
+                        AvailableRecordMutationStrategyTypes.Find(t => t.Name == cliArguments.Strategy);
+                    strategy = RetrieveStrategyInstance(strategyClrType, appSettings);
+                }
+                else
+                {
+                    strategy = GetPatchStrategyFromPrompt(GetApplicationSettings(rootApplicationConfiguration));
+                }
 
-                    // Give some time for the logs to be flushed before the confirmation prompt.
+                if (strategy != null)
+                {
+                    // Give some time for the logs to be flushed.
                     Thread.Sleep(500);
 
-                    var chosenPatchStrategy = GetPatchStrategyFromPrompt(GetApplicationSettings(rootApplicationConfiguration));
+                    Console.WriteLine();
+                    Console.Write("Are you sure you want to mutate the records ? (y/n) ");
 
-                    if (chosenPatchStrategy != null)
+                    var confirmationResponse = string.IsNullOrWhiteSpace(cliArguments.Strategy)
+                        ? Console.ReadKey()
+                        : new ConsoleKeyInfo('Y', ConsoleKey.Y, false, false, false);
+
+                    Console.WriteLine();
+
+                    if (confirmationResponse.Key == ConsoleKey.Y)
                     {
-                        // Give some time for the logs to be flushed.
-                        Thread.Sleep(500);
-
-                        Console.WriteLine();
-                        Console.Write("Are you sure you want to mutate the records ? (y/n) ");
-                        var confirmationResponse = Console.ReadKey();
-                        Console.WriteLine();
-
-                        if (confirmationResponse.Key == ConsoleKey.Y)
+                        try
                         {
-                            try
-                            {
-                                await chosenPatchStrategy.EvaluateAsync(cliArguments.DryRun, cancellationTokenSource.Token);
-                            }
-                            catch (Exception ex)
-                            {
-                                Log.Error(ex, "Terminal error");
-                            }
+                            await strategy.EvaluateAsync(cliArguments.DryRun, cancellationTokenSource.Token);
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            Log.Information("User did not approve the mutation of the records. Exiting...");
+                            Log.Error(ex, "Terminal error");
                         }
                     }
                     else
                     {
-                        Log.Information("No strategy was provided. Exiting...");
+                        Log.Information("User did not approve the mutation of the records. Exiting...");
                     }
-
-                    await Log.CloseAndFlushAsync();
-                });
-        }
-
-        /// <summary>
-        /// Configures logging.
-        /// </summary>
-        /// <param name="settings">The root configuration settings.</param>
-        private static void ConfigureSerilog(IConfigurationRoot settings)
-        {
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(settings)
-                .CreateLogger();
-        }
-
-        /// <summary>
-        /// Retrieve the root application configuration.
-        /// </summary>
-        /// <returns>An instance of <see cref="IConfigurationRoot"/>.</returns>
-        private static IConfigurationRoot GetRootConfiguration() => new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")}.json", optional: true, reloadOnChange: true)
-                .Build();
-
-        /// <summary>
-        /// Prompts the user to select which strategy he wants to evaluate &amp; creates an instance of it.
-        /// </summary>
-        /// <param name="applicationSettings">The application's main settings.</param>
-        /// <returns>The strategy instance.</returns>
-        private static IBulkOperationStrategy GetPatchStrategyFromPrompt(ApplicationSettings applicationSettings)
-        {
-            ArgumentNullException.ThrowIfNull(applicationSettings);
-            ArgumentNullException.ThrowIfNull(applicationSettings.CosmosSettings);
-            ArgumentNullException.ThrowIfNull(applicationSettings.ContainerConfigSectionsAndSettings);
-
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine();
-            Console.WriteLine("Available strategies:");
-            Console.ForegroundColor = ConsoleColor.Cyan;
-
-            for (int i = 0; i < AvailableRecordMutationStrategyTypes.Count; i++)
-            {
-                Console.WriteLine($"    {i + 1}. {AvailableRecordMutationStrategyTypes[i].Name}");
-            }
-
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write("Choose strategy index ('e' - Exit): ");
-
-            int selectedIndex;
-            var userInput = Console.ReadLine();
-            while (userInput == APP_EXIT_USER_INPUT || !int.TryParse(userInput, out selectedIndex) || selectedIndex < 0 || selectedIndex > AvailableRecordMutationStrategyTypes.Count)
-            {
-                if (userInput != APP_EXIT_USER_INPUT)
+                }
+                else
                 {
-                    Console.WriteLine("Invalid index. Try again");
-                    userInput = Console.ReadLine();
-                    continue;
+                    Log.Information("No strategy was provided. Exiting...");
                 }
 
-                return null;
-            }
+                await Log.CloseAndFlushAsync();
+            });
+    }
 
-            Console.ForegroundColor = ConsoleColor.Gray;
+    /// <summary>
+    /// Configures logging.
+    /// </summary>
+    /// <param name="settings">The root configuration settings.</param>
+    private static void ConfigureSerilog(IConfigurationRoot settings)
+    {
+        Log.Logger = new LoggerConfiguration()
+            .ReadFrom.Configuration(settings)
+            .CreateLogger();
+    }
 
-            var chosenStrategyType = AvailableRecordMutationStrategyTypes[selectedIndex - 1];
-            var configKey = chosenStrategyType.GetCustomAttribute<SettingsKeyAttribute>();
+    /// <summary>
+    /// Retrieve the root application configuration.
+    /// </summary>
+    /// <returns>An instance of <see cref="IConfigurationRoot"/>.</returns>
+    private static IConfigurationRoot GetRootConfiguration() => new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")}.json", optional: true,
+            reloadOnChange: true)
+        .Build();
 
-            if (!applicationSettings.ContainerConfigSectionsAndSettings.TryGetValue(configKey.Name, out var containerSetting))
-            {
-                Log.Error("Cannot find container settings for configuration key: {@ConfigKey}", configKey.Name);
+    /// <summary>
+    /// Prompts the user to select which strategy he wants to evaluate &amp; creates an instance of it.
+    /// </summary>
+    /// <param name="applicationSettings">The application's main settings.</param>
+    /// <returns>The strategy instance.</returns>
+    private static IBulkOperationStrategy GetPatchStrategyFromPrompt(ApplicationSettings applicationSettings)
+    {
+        ArgumentNullException.ThrowIfNull(applicationSettings);
+        ArgumentNullException.ThrowIfNull(applicationSettings.CosmosSettings);
+        ArgumentNullException.ThrowIfNull(applicationSettings.ContainerConfigSectionsAndSettings);
 
-                return null;
-            }
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine();
+        Console.WriteLine("Available strategies:");
+        Console.ForegroundColor = ConsoleColor.Cyan;
 
-            Log.Information("Creating instance of {@Strategy}", chosenStrategyType.Name);
-
-            return Activator.CreateInstance(chosenStrategyType, applicationSettings.CosmosSettings, containerSetting) as IBulkOperationStrategy;
-        }
-
-        /// <summary>
-        /// Retrieves the application's settings.
-        /// </summary>
-        /// <param name="settings">The configuration root settings.</param>
-        /// <returns>An instance of <see cref="ApplicationSettings"/>.</returns>
-        private static ApplicationSettings GetApplicationSettings(IConfigurationRoot settings)
+        for (int i = 0; i < AvailableRecordMutationStrategyTypes.Count; i++)
         {
-            ArgumentNullException.ThrowIfNull(settings);
-
-            var cosmosSettings = settings.GetRequiredSection(nameof(CosmosSettings)).Get<CosmosSettings>();
-            var rootContainerSettingsSection = settings.GetRequiredSection("ContainerSettings");
-            var containerSettings = rootContainerSettingsSection
-                .GetChildren()
-                .Where(s => !s.Key.Contains(':'))
-                .ToDictionary(k => k.Key, w => w.Get<ContainerSettings>());
-
-            return new()
-            {
-                CosmosSettings = cosmosSettings,
-                ContainerConfigSectionsAndSettings = containerSettings
-            };
+            Console.WriteLine($"    {i + 1}. {AvailableRecordMutationStrategyTypes[i].Name}");
         }
+
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.Write("Choose strategy index ('e' - Exit): ");
+
+        int selectedIndex;
+        var userInput = Console.ReadLine();
+        while (userInput == APP_EXIT_USER_INPUT || !int.TryParse(userInput, out selectedIndex) || selectedIndex < 0 ||
+               selectedIndex > AvailableRecordMutationStrategyTypes.Count)
+        {
+            if (userInput != APP_EXIT_USER_INPUT)
+            {
+                Console.WriteLine("Invalid index. Try again");
+                userInput = Console.ReadLine();
+                continue;
+            }
+
+            return null;
+        }
+
+        Console.ForegroundColor = ConsoleColor.Gray;
+
+        var chosenStrategyType = AvailableRecordMutationStrategyTypes[selectedIndex - 1];
+        return RetrieveStrategyInstance(chosenStrategyType, applicationSettings);
+    }
+
+    /// <summary>
+    /// Constructs a new <see cref="IBulkOperationStrategy"/> instance from
+    /// the provided CLR type.
+    /// </summary>
+    private static IBulkOperationStrategy RetrieveStrategyInstance(Type strategy,
+        ApplicationSettings applicationSettings)
+    {
+        var configKey = strategy.GetCustomAttribute<SettingsKeyAttribute>();
+
+        if (!applicationSettings.ContainerConfigSectionsAndSettings.TryGetValue(configKey.Name,
+                out var containerSetting))
+        {
+            Log.Error("Cannot find container settings for configuration key: {@ConfigKey}", configKey.Name);
+
+            return null;
+        }
+
+        Log.Information("Creating instance of {@Strategy}", strategy.Name);
+
+        return Activator.CreateInstance(strategy, applicationSettings.CosmosSettings, containerSetting) as
+            IBulkOperationStrategy;
+    }
+
+    /// <summary>
+    /// Retrieves the application's settings.
+    /// </summary>
+    /// <param name="settings">The configuration root settings.</param>
+    /// <returns>An instance of <see cref="ApplicationSettings"/>.</returns>
+    private static ApplicationSettings GetApplicationSettings(IConfigurationRoot settings)
+    {
+        ArgumentNullException.ThrowIfNull(settings);
+
+        var cosmosSettings = settings.GetRequiredSection(nameof(CosmosSettings)).Get<CosmosSettings>();
+        var rootContainerSettingsSection = settings.GetRequiredSection("ContainerSettings");
+        var containerSettings = rootContainerSettingsSection
+            .GetChildren()
+            .Where(s => !s.Key.Contains(':'))
+            .ToDictionary(k => k.Key, w => w.Get<ContainerSettings>());
+
+        return new() { CosmosSettings = cosmosSettings, ContainerConfigSectionsAndSettings = containerSettings };
     }
 }

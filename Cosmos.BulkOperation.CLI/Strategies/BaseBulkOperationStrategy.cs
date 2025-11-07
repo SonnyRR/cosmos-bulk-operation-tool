@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -109,8 +110,13 @@ namespace Cosmos.BulkOperation.CLI.Strategies
                 // Let the SDK retry it first, then fallback to a custom policy
                 .WithThrottlingRetryOptions(settings.MaxRetryWaitTimeOnRateLimitedRequests, settings.MaxRetryAttemptsOnRateLimitedRequests)
                 .AddCustomHandlers(new LoggingRequestHandler(), new ThrottlingRequestHandler())
-                .WithConnectionModeDirect()
-                .WithLimitToEndpoint(true);
+                //.WithConnectionModeDirect()
+                .WithConnectionModeGateway()
+                .WithLimitToEndpoint(true)
+                .WithHttpClientFactory(() => new HttpClient(new HttpClientHandler()
+                    {
+                        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                    }));
 
             clientBuilder = useSystemTextJson
                 ? clientBuilder.WithSystemTextJsonSerializerOptions(new JsonSerializerOptions

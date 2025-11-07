@@ -27,7 +27,7 @@ namespace Cosmos.BulkOperation.Samples
         /// <param name="baseRecords">The number of base records to generate.</param>
         /// <param name="userSpecificRecords">The number of user specific records to generate.</param>
         /// <returns>An array of randomly generated runs.</returns>
-        public static Run[] GenerateDummyRuns(int baseRecords = 8_500, int userSpecificRecords = 250)
+        public static Run[] GenerateDummyRuns(int baseRecords = 500, int userSpecificRecords = 250)
         {
             var checkpointFaker = new Faker<Checkpoint>()
                 .RuleFor(c => c.Latitude, f => f.Address.Latitude())
