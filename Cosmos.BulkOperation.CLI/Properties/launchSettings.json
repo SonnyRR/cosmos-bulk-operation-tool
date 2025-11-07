@@ -8,7 +8,7 @@
       "commandName": "Project",
       "commandLineArgs": "--dry-run",
       "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Local"
+        "DOTNET_ENVIRONMENT": "Testing"
       }
     },
     "Regular": {

@@ -28,7 +28,7 @@ public abstract class BaseBulkOperationStrategy<TRecord, TPartitionKey> : IBulkO
     where TRecord : class
     where TPartitionKey : PartitionKeyType
 {
-        /// <summary>
+    /// <summary>
     /// The number of completed bulk operation tasks.
     /// </summary>
     protected int completedTasksCount;

@@ -38,8 +38,8 @@ namespace Cosmos.BulkOperation.Tests.Fixtures
                 .WithPortBinding(10254, 10254)
                 .WithPortBinding(10255, 10255)
                 .WithReuse(true)
-                .WithEnvironment("AZURE_COSMOS_EMULATOR_PARTITION_COUNT", "2")
-                .WithEnvironment("AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE", "true");
+                .WithEnvironment("AZURE_COSMOS_EMULATOR_PARTITION_COUNT", "2");
+            // .WithEnvironment("AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE", "true");
         }
 
         /// <inheritdoc/>
