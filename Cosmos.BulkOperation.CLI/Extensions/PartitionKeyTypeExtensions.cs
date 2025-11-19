@@ -1,32 +1,31 @@
 using Microsoft.Azure.Cosmos;
 
-namespace Cosmos.BulkOperation.CLI.Extensions
+namespace Cosmos.BulkOperation.CLI.Extensions;
+
+public static class PartitionKeyTypeExtensions
 {
-    public static class PartitionKeyTypeExtensions
-    {
-        public static PartitionKey UnwrapPartitionKey(this PartitionKeyType partitionKey)
-            => partitionKey switch
-            {
-                PartitionKeyType.StringPartitionKey s => new PartitionKey(s.Key),
-                PartitionKeyType.DoublePartitionKey d => new PartitionKey(d.Key),
-                PartitionKeyType.BooleanPartitionKey b => new PartitionKey(b.Key),
-                PartitionKeyType.HierarchicalPartitionKey h => BuildHierarchicalPartitionKey(h),
-                _ => PartitionKey.Null
-            };
-
-        private static PartitionKey BuildHierarchicalPartitionKey(PartitionKeyType.HierarchicalPartitionKey key)
+    public static PartitionKey UnwrapPartitionKey(this PartitionKeyType partitionKey)
+        => partitionKey switch
         {
-            var builder = new PartitionKeyBuilder();
+            PartitionKeyType.StringPartitionKey s => new PartitionKey(s.Key),
+            PartitionKeyType.DoublePartitionKey d => new PartitionKey(d.Key),
+            PartitionKeyType.BooleanPartitionKey b => new PartitionKey(b.Key),
+            PartitionKeyType.HierarchicalPartitionKey h => BuildHierarchicalPartitionKey(h),
+            _ => PartitionKey.Null
+        };
 
-            builder.Add(key.FirstKey);
-            builder.Add(key.SecondKey);
+    private static PartitionKey BuildHierarchicalPartitionKey(PartitionKeyType.HierarchicalPartitionKey key)
+    {
+        var builder = new PartitionKeyBuilder();
 
-            if (key.ThirdKey is not null)
-            {
-                builder.Add(key.ThirdKey);
-            }
+        builder.Add(key.FirstKey);
+        builder.Add(key.SecondKey);
 
-            return builder.Build();
+        if (key.ThirdKey is not null)
+        {
+            builder.Add(key.ThirdKey);
         }
+
+        return builder.Build();
     }
 }

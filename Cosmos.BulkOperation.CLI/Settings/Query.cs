@@ -1,15 +1,14 @@
 using System.Collections.Generic;
 
-namespace Cosmos.BulkOperation.CLI.Settings
+namespace Cosmos.BulkOperation.CLI.Settings;
+
+/// <summary>
+/// Represents a Cosmos DB SQL query
+/// </summary>
+public class Query
 {
     /// <summary>
-    /// Represents a Cosmos DB SQL query
+    /// The query.
     /// </summary>
-    public class Query
-    {
-        /// <summary>
-        /// The query.
-        /// </summary>
-        public string Value { get; set; }
-    }
+    public string Value { get; set; }
 }

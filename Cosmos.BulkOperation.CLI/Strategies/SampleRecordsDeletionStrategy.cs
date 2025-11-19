@@ -1,39 +1,39 @@
-using Cosmos.BulkOperation.CLI.Settings;
-using Cosmos.BulkOperation.Samples;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Cosmos.BulkOperation.CLI.Strategies
+using Cosmos.BulkOperation.CLI.Settings;
+using Cosmos.BulkOperation.Samples;
+
+namespace Cosmos.BulkOperation.CLI.Strategies;
+
+/// <summary>
+/// A sample strategy for bulk deleting dummy test data.
+/// </summary>
+/// <remarks>
+/// Deletes all records matching the query.
+/// </remarks>
+/// <inheritdoc cref="BulkDeleteOperationStrategy{Run, PartitionKeyType.StringPartitionKey}"/>
+[SettingsKey("RunSettings")]
+public class SampleRecordsDeletionStrategy : BulkDeleteOperationStrategy<Run, PartitionKeyType.StringPartitionKey>
 {
-    /// <summary>
-    /// A sample strategy for bulk deleting dummy test data.
-    /// </summary>
-    /// <remarks>
-    /// Deletes all records matching the query.
-    /// </remarks>
-    /// <inheritdoc cref="BulkDeleteOperationStrategy{Run, PartitionKeyType.StringPartitionKey}"/>
-    [SettingsKey("RunSettings")]
-    public class SampleRecordsDeletionStrategy : BulkDeleteOperationStrategy<Run, PartitionKeyType.StringPartitionKey>
+    public SampleRecordsDeletionStrategy(CosmosSettings cosmosSettings, ContainerSettings containerSettings)
+        : base(cosmosSettings, containerSettings, useSystemTextJson: true)
     {
-        public SampleRecordsDeletionStrategy(CosmosSettings cosmosSettings, ContainerSettings containerSettings)
-            : base(cosmosSettings, containerSettings, useSystemTextJson: true)
+    }
+
+    public override async Task EvaluateAsync(bool dryRun = false, CancellationToken ct = default)
+    {
+        var recordsToDelete = new List<Run>();
+
+        var feed = this.GetFeedIterator();
+        while (feed.HasMoreResults)
         {
+            var row = await feed.ReadNextAsync(ct);
+            recordsToDelete.AddRange(row.Resource);
         }
 
-        public override async Task EvaluateAsync(bool dryRun = false, CancellationToken ct = default)
-        {
-            var recordsToDelete = new List<Run>();
-
-            var feed = this.GetFeedIterator();
-            while (feed.HasMoreResults)
-            {
-                var row = await feed.ReadNextAsync(ct);
-                recordsToDelete.AddRange(row.Resource);
-            }
-
-            this.QueueDeletionOperationTasks(recordsToDelete, r => r.Id.ToString(), r => new(r.UserId), ct);
-            await base.EvaluateAsync(dryRun, ct);
-        }
+        this.QueueDeletionOperationTasks(recordsToDelete, r => r.Id.ToString(), r => new(r.UserId), ct);
+        await base.EvaluateAsync(dryRun, ct);
     }
 }
