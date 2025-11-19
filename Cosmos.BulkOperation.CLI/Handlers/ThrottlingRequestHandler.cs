@@ -34,11 +34,11 @@ public class ThrottlingRequestHandler : RequestHandler
                 TimeSpan.FromSeconds(32),
             ], (_, _, retryAttempt, context) =>
             {
-                const string messageTemplate = "Too many requests. Custom retry attempt number: #{@RetryAttempt} | Req: {@Method}-{@Request}";
+                const string MSG_TEMPLATE = "Too many requests. Custom retry attempt number: #{@RetryAttempt} | Req: {@Method}-{@Request}";
                 context.TryGetValue(REQ_URI_KEY, out var uri);
                 context.TryGetValue(REQ_METHOD_KEY, out var method);
 
-                Log.Error(messageTemplate, retryAttempt, method, uri);
+                Log.Error(MSG_TEMPLATE, retryAttempt, method, uri);
             });
 
     // This policy exists to stop all attempts across all threads

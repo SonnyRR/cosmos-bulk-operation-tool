@@ -27,8 +27,8 @@ public abstract class BaseBulkOperationStrategy<TRecord, TPartitionKey> : IBulkO
     where TRecord : class
     where TPartitionKey : PartitionKeyType
 {
-    protected int CompletedTasksCount;
-    protected int TotalOperationsCount;
+    protected int completedTasksCount;
+    protected int totalOperationsCount;
 
     /// <summary>
     /// Sets up the strategy's database &amp; container settings.
@@ -82,7 +82,7 @@ public abstract class BaseBulkOperationStrategy<TRecord, TPartitionKey> : IBulkO
 
     public virtual async Task EvaluateAsync(bool dryRun = false, CancellationToken ct = default)
     {
-        Log.Information("Total operations queued: {@PatchesCount}", this.TotalOperationsCount);
+        Log.Information("Total operations queued: {@PatchesCount}", this.totalOperationsCount);
 
         if (this.PartitionedBulkTasks.Count > 0)
         {
@@ -90,7 +90,7 @@ public abstract class BaseBulkOperationStrategy<TRecord, TPartitionKey> : IBulkO
             this.PartitionedBulkTasks.Clear();
         }
 
-        Log.Information("Total completed tasks: {@CompletedTasks}", this.CompletedTasksCount);
+        Log.Information("Total completed tasks: {@CompletedTasks}", this.completedTasksCount);
         foreach (var response in this.HttpResponses)
         {
             Log.Information("{@StatusCode} - {@Count}", response.Key, response.Value);

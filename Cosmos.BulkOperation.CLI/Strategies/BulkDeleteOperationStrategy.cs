@@ -45,10 +45,10 @@ public abstract class BulkDeleteOperationStrategy<TRecord, TPartitionKeyType> : 
                 HttpStatusCode statusCode = HttpStatusCode.MisdirectedRequest;
                 if (task.IsCompletedSuccessfully)
                 {
-                    Interlocked.Increment(ref this.CompletedTasksCount);
+                    Interlocked.Increment(ref this.completedTasksCount);
                     var response = task.Result;
 
-                    Log.Information("({@Count}) Processed batch - HTTP {@Status} | RU: {@RU}", this.CompletedTasksCount, (int)response.StatusCode, response.RequestCharge);
+                    Log.Information("({@Count}) Processed batch - HTTP {@Status} | RU: {@RU}", this.completedTasksCount, (int)response.StatusCode, response.RequestCharge);
                     statusCode = task.Result.StatusCode;
                 }
                 else if (task.Exception?.InnerException is CosmosException ex)
@@ -96,7 +96,7 @@ public abstract class BulkDeleteOperationStrategy<TRecord, TPartitionKeyType> : 
             foreach (var record in partition)
             {
                 deleteTasksForPartitionKey.Add(() => this.Delete(idKeyAccessor(record), partition.Key.UnwrapPartitionKey(), null, ct));
-                this.TotalOperationsCount++;
+                this.totalOperationsCount++;
             }
         }
     }

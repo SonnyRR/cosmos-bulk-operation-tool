@@ -37,10 +37,10 @@ public abstract class BulkInsertOperationStrategy<TRecord, TPartitionKeyType> : 
                 HttpStatusCode statusCode = HttpStatusCode.MisdirectedRequest;
                 if (task.IsCompletedSuccessfully)
                 {
-                    Interlocked.Increment(ref this.CompletedTasksCount);
+                    Interlocked.Increment(ref this.completedTasksCount);
                     var response = task.Result;
 
-                    Log.Information("({@Count}) Processed batch - HTTP {@Status} | RU: {@RU}", this.CompletedTasksCount, (int)response.StatusCode, response.RequestCharge);
+                    Log.Information("({@Count}) Processed batch - HTTP {@Status} | RU: {@RU}", this.completedTasksCount, (int)response.StatusCode, response.RequestCharge);
                     statusCode = task.Result.StatusCode;
                 }
                 else if (task.Exception?.InnerException is CosmosException ex)
@@ -77,7 +77,7 @@ public abstract class BulkInsertOperationStrategy<TRecord, TPartitionKeyType> : 
             foreach (var record in partition)
             {
                 insertTasksForPartitionKey.Add(() => this.Insert(record, partition.Key.UnwrapPartitionKey(), null, ct));
-                this.TotalOperationsCount++;
+                this.totalOperationsCount++;
             }
         }
     }

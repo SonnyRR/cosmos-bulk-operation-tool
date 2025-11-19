@@ -61,14 +61,14 @@ public abstract class BulkPatchOperationStrategy<TRecord, TPartitionKeyType> : B
                 HttpStatusCode statusCode = HttpStatusCode.MisdirectedRequest;
                 if (task.IsCompletedSuccessfully)
                 {
-                    Interlocked.Increment(ref this.CompletedTasksCount);
+                    Interlocked.Increment(ref this.completedTasksCount);
                     var response = task.Result;
 
                     // The batches referenced here are not the batches, which the Cosmos DB SDK creates
                     // behind the scenes when Bulk operations are enabled. Those batches can contain up to 100
                     // operations or 2MB of data. This means that an actual cosmos batch can contain 10 of these tasks.
                     // (10 TPL tasks w/ 10 max operations per task)
-                    Log.Information("({@Count}) Processed batch for: '{@RecordId}' - HTTP {@Status} | RU: {@RU}", this.CompletedTasksCount, recordId, (int)response.StatusCode, response.RequestCharge);
+                    Log.Information("({@Count}) Processed batch for: '{@RecordId}' - HTTP {@Status} | RU: {@RU}", this.completedTasksCount, recordId, (int)response.StatusCode, response.RequestCharge);
                     statusCode = task.Result.StatusCode;
                 }
                 else if (task.Exception?.InnerException is CosmosException ex)
@@ -113,7 +113,7 @@ public abstract class BulkPatchOperationStrategy<TRecord, TPartitionKeyType> : B
                 patchTasksForPartitionKey.Add(() => this.Patch(recordId, partitionKey.UnwrapPartitionKey(), patchOperationsBatch, ct));
             }
 
-            this.TotalOperationsCount += patchOperations.Count;
+            this.totalOperationsCount += patchOperations.Count;
         }
     }
 }
