@@ -1,13 +1,13 @@
 <Project>
-  <PropertyGroup>
-    <Authors>Vasil Kotsev</Authors>
-    <Company>StackedDeck</Company>
-    <Copyright>Copyright © 2025 Vasil Kotsev</Copyright>
-    <PackageProjectUrl>https://github.com/SonnyRR/cosmos-bulk-operation-tool</PackageProjectUrl>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Nullable>disable</Nullable>
-    <ImplicitUsings>disable</ImplicitUsings>
+    <PropertyGroup>
+        <Authors>Vasil Kotsev</Authors>
+        <Company>StackedDeck</Company>
+        <Copyright>Copyright © 2025 Vasil Kotsev</Copyright>
+        <PackageProjectUrl>https://github.com/SonnyRR/cosmos-bulk-operation-tool</PackageProjectUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <Nullable>disable</Nullable>
+        <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
 </Project>

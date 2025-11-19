@@ -1,9 +1,13 @@
 <Solution>
-  <Configurations>
-    <Platform Name="x64" />
-  </Configurations>
-  <Project Path="Cosmos.BulkOperation.CLI/Cosmos.BulkOperation.CLI.csproj">
-    <Platform Project="x64" />
-  </Project>
-  <Project Path="Cosmos.BulkOperation.Samples/Cosmos.BulkOperation.Samples.csproj" />
+
+    <Configurations>
+        <Platform Name="x64" />
+    </Configurations>
+
+    <Project Path="Cosmos.BulkOperation.CLI/Cosmos.BulkOperation.CLI.csproj">
+        <Platform Project="x64" />
+    </Project>
+
+    <Project Path="Cosmos.BulkOperation.Samples/Cosmos.BulkOperation.Samples.csproj" />
+
 </Solution>
