@@ -2,8 +2,16 @@ using Microsoft.Azure.Cosmos;
 
 namespace Cosmos.BulkOperation.CLI.Extensions;
 
+/// <summary>
+/// Extension methods for working with <see cref="PartitionKeyType"/>.
+/// </summary>
 public static class PartitionKeyTypeExtensions
 {
+    /// <summary>
+    /// Converts a <see cref="PartitionKeyType"/> to a Cosmos <see cref="PartitionKey"/>.
+    /// </summary>
+    /// <param name="partitionKey">The partition key abstraction to unwrap.</param>
+    /// <returns>The corresponding Cosmos <see cref="PartitionKey"/>.</returns>
     public static PartitionKey UnwrapPartitionKey(this PartitionKeyType partitionKey)
         => partitionKey switch
         {

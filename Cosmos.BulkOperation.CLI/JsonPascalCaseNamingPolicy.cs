@@ -8,6 +8,11 @@ namespace Cosmos.BulkOperation.CLI;
 /// </summary>
 public sealed class JsonPascalCaseNamingPolicy : JsonNamingPolicy
 {
+    /// <summary>
+    /// Converts the specified name to PascalCase.
+    /// </summary>
+    /// <param name="name">The name to convert.</param>
+    /// <returns>The PascalCase version of the name.</returns>
     public override string ConvertName(string name)
     {
         if (string.IsNullOrEmpty(name) || !char.IsLower(name[0]))

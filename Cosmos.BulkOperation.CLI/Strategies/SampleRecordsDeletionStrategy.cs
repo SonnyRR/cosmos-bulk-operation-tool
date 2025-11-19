@@ -13,15 +13,25 @@ namespace Cosmos.BulkOperation.CLI.Strategies;
 /// <remarks>
 /// Deletes all records matching the query.
 /// </remarks>
-/// <inheritdoc cref="BulkDeleteOperationStrategy{Run, PartitionKeyType.StringPartitionKey}"/>
+
 [SettingsKey("RunSettings")]
 public class SampleRecordsDeletionStrategy : BulkDeleteOperationStrategy<Run, PartitionKeyType.StringPartitionKey>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SampleRecordsDeletionStrategy"/> class.
+    /// </summary>
+    /// <param name="cosmosSettings">The Cosmos DB settings.</param>
+    /// <param name="containerSettings">The container settings.</param>
     public SampleRecordsDeletionStrategy(CosmosSettings cosmosSettings, ContainerSettings containerSettings)
         : base(cosmosSettings, containerSettings, useSystemTextJson: true)
     {
     }
 
+    /// <summary>
+    /// Executes the bulk deletion of sample records.
+    /// </summary>
+    /// <param name="dryRun">If true, does not apply changes to Cosmos DB.</param>
+    /// <param name="ct">A cancellation token.</param>
     public override async Task EvaluateAsync(bool dryRun = false, CancellationToken ct = default)
     {
         var recordsToDelete = new List<Run>();

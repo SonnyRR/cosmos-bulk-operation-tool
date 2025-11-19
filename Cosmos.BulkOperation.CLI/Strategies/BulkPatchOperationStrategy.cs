@@ -19,11 +19,14 @@ namespace Cosmos.BulkOperation.CLI.Strategies;
 /// </summary>
 /// <typeparam name="TRecord">The type of records to insert.</typeparam>
 /// <typeparam name="TPartitionKeyType">The partition key type</typeparam>
-/// <inheritdoc cref="BaseBulkOperationStrategy{TRecord, TPartitionKeyType}"/>
+
 public abstract class BulkPatchOperationStrategy<TRecord, TPartitionKeyType> : BaseBulkOperationStrategy<TRecord, TPartitionKeyType>
     where TRecord : class
     where TPartitionKeyType : PartitionKeyType
 {
+    /// <summary>
+    /// The maximum number of operations allowed per patch in Cosmos DB.
+    /// </summary>
     protected const byte MAX_OPERATIONS_PER_PATCH = 10;
 
     /// <summary>
@@ -35,6 +38,12 @@ public abstract class BulkPatchOperationStrategy<TRecord, TPartitionKeyType> : B
     /// </remarks>
     protected readonly PatchItemRequestOptions patchItemRequestOptions = new() { EnableContentResponseOnWrite = false };
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BulkPatchOperationStrategy{TRecord, TPartitionKeyType}"/> class.
+    /// </summary>
+    /// <param name="cosmosSettings">The Cosmos DB settings.</param>
+    /// <param name="containerSettings">The container settings.</param>
+    /// <param name="useSystemTextJson">Flag for using System.Text.Json.</param>
     protected BulkPatchOperationStrategy(CosmosSettings cosmosSettings, ContainerSettings containerSettings, bool useSystemTextJson = false)
     : base(cosmosSettings, containerSettings, useSystemTextJson)
     {

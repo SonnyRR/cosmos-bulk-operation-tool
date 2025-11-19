@@ -19,16 +19,30 @@ namespace Cosmos.BulkOperation.CLI.Strategies;
 /// </summary>
 /// <typeparam name="TRecord">The type of records to insert.</typeparam>
 /// <typeparam name="TPartitionKeyType">The partition key type</typeparam>
-/// <inheritdoc cref="BaseBulkOperationStrategy{TRecord, TPartitionKeyType}"/>
+
 public abstract class BulkInsertOperationStrategy<TRecord, TPartitionKeyType> : BaseBulkOperationStrategy<TRecord, TPartitionKeyType>
     where TRecord : class
     where TPartitionKeyType : PartitionKeyType
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BulkInsertOperationStrategy{TRecord, TPartitionKeyType}"/> class.
+    /// </summary>
+    /// <param name="cosmosSettings">The Cosmos DB settings.</param>
+    /// <param name="containerSettings">The container settings.</param>
+    /// <param name="useSystemTextJson">Flag for using System.Text.Json.</param>
     protected BulkInsertOperationStrategy(CosmosSettings cosmosSettings, ContainerSettings containerSettings, bool useSystemTextJson = false)
         : base(cosmosSettings, containerSettings, useSystemTextJson)
     {
     }
 
+    /// <summary>
+    /// Inserts a record into Cosmos DB.
+    /// </summary>
+    /// <param name="item">The record to insert.</param>
+    /// <param name="partitionKeyValue">The partition key value.</param>
+    /// <param name="itemRequestOptions">The request options.</param>
+    /// <param name="ct">A cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     protected Task Insert(TRecord item, PartitionKey partitionKeyValue, ItemRequestOptions itemRequestOptions = null, CancellationToken ct = default)
         => this.Container
             .CreateItemAsync(item, partitionKeyValue, itemRequestOptions, ct)
@@ -54,6 +68,12 @@ public abstract class BulkInsertOperationStrategy<TRecord, TPartitionKeyType> : 
             },
             ct);
 
+    /// <summary>
+    /// Queues insertion tasks for bulk insert operations.
+    /// </summary>
+    /// <param name="recordsToInsert">The records to insert.</param>
+    /// <param name="partionKeyAccessor">A delegate to access the partition key value.</param>
+    /// <param name="ct">A cancellation token.</param>
     protected void QueueInsertionOperationTasks(IEnumerable<TRecord> recordsToInsert, Func<TRecord, TPartitionKeyType> partionKeyAccessor, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(recordsToInsert);

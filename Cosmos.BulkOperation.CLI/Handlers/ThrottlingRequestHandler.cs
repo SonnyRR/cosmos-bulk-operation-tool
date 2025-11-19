@@ -46,6 +46,12 @@ public class ThrottlingRequestHandler : RequestHandler
         .HandleResult<ResponseMessage>(r => r.StatusCode == HttpStatusCode.TooManyRequests)
         .CircuitBreakerAsync(1, TimeSpan.FromSeconds(2));
 
+    /// <summary>
+    /// Sends a request with retry and circuit breaker policies for handling throttling.
+    /// </summary>
+    /// <param name="request">The Cosmos DB request message.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>The response message from Cosmos DB.</returns>
     public override async Task<ResponseMessage> SendAsync(RequestMessage request, CancellationToken cancellationToken)
         => await ExponentialRetryPolicy.ExecuteAsync((ctx, ct) =>
             {

@@ -14,6 +14,7 @@ public interface IBulkOperationStrategy
     /// <param name="dryRun">
     /// A flag indicating that the changes should not be applied to the Cosmos DB resource.
     /// </param>
+    /// <param name="ct">A cancellation token.</param>
     /// <returns>An instance of <see cref="Task"/>.</returns>
     Task EvaluateAsync(bool dryRun = false, CancellationToken ct = default);
 }

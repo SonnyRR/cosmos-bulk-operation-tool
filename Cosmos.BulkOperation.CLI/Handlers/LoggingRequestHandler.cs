@@ -12,6 +12,12 @@ namespace Cosmos.BulkOperation.CLI.Handlers;
 /// </summary>
 public class LoggingRequestHandler : RequestHandler
 {
+    /// <summary>
+    /// Sends a request and logs a warning if the response is not successful.
+    /// </summary>
+    /// <param name="request">The Cosmos DB request message.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>The response message from Cosmos DB.</returns>
     public override async Task<ResponseMessage> SendAsync(RequestMessage request, CancellationToken cancellationToken)
     {
         ResponseMessage response = await base.SendAsync(request, cancellationToken);

@@ -8,17 +8,26 @@ using Microsoft.Azure.Cosmos;
 
 namespace Cosmos.BulkOperation.CLI.Strategies;
 
-
 /// <summary>
 /// A sample strategy for bulk importing dummy test data.
 /// </summary>
-/// <inheritdoc cref="BulkInsertOperationStrategy{Run, PartitionKeyType.StringPartitionKey}"/>
+
 [SettingsKey("RunSettings")]
 public class SampleRecordsInsertionStrategy : BulkInsertOperationStrategy<Run, PartitionKeyType.StringPartitionKey>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SampleRecordsInsertionStrategy"/> class.
+    /// </summary>
+    /// <param name="cosmosSettings">The Cosmos DB settings.</param>
+    /// <param name="containerSettings">The container settings.</param>
     public SampleRecordsInsertionStrategy(CosmosSettings cosmosSettings, ContainerSettings containerSettings)
         : base(cosmosSettings, containerSettings, useSystemTextJson: true) { }
 
+    /// <summary>
+    /// Executes the bulk insertion of sample records.
+    /// </summary>
+    /// <param name="dryRun">If true, does not apply changes to Cosmos DB.</param>
+    /// <param name="ct">A cancellation token.</param>
     public override async Task EvaluateAsync(bool dryRun = false, CancellationToken ct = default)
     {
         await this.CreateDatabaseAndContainerIfNotExisting(ct);

@@ -16,6 +16,9 @@ using Serilog;
 
 namespace Cosmos.BulkOperation.CLI;
 
+/// <summary>
+/// Entry point for the Cosmos Bulk Operation CLI tool.
+/// </summary>
 public static class Program
 {
     private const string APP_EXIT_USER_INPUT = "e";
@@ -28,6 +31,10 @@ public static class Program
                     && Attribute.IsDefined(t, typeof(SettingsKeyAttribute)))
         .OrderBy(t => t.Name)];
 
+    /// <summary>
+    /// Main entry point for the application.
+    /// </summary>
+    /// <param name="args">Command-line arguments.</param>
     public static async Task Main(string[] args)
     {
         // Set up a cancellation token source when the user forcibly

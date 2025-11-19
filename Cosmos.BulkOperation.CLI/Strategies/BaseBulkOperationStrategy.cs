@@ -22,12 +22,19 @@ namespace Cosmos.BulkOperation.CLI.Strategies;
 /// Represents a base bulk operation strategy with some common methods &amp; properties.
 /// </summary>
 /// <typeparam name="TRecord">The container's item model.</typeparam>
+/// <typeparam name="TPartitionKey">The partition key type.</typeparam>
 /// <inheritdoc cref="IBulkOperationStrategy"/>
 public abstract class BaseBulkOperationStrategy<TRecord, TPartitionKey> : IBulkOperationStrategy
     where TRecord : class
     where TPartitionKey : PartitionKeyType
 {
+        /// <summary>
+    /// The number of completed bulk operation tasks.
+    /// </summary>
     protected int completedTasksCount;
+    /// <summary>
+    /// The total number of operations queued for execution.
+    /// </summary>
     protected int totalOperationsCount;
 
     /// <summary>
@@ -80,6 +87,11 @@ public abstract class BaseBulkOperationStrategy<TRecord, TPartitionKey> : IBulkO
     /// </summary>
     protected Dictionary<TPartitionKey, List<Func<Task>>> PartitionedBulkTasks { get; set; } = [];
 
+    /// <summary>
+    /// Evaluates the bulk operation strategy by executing all queued operations.
+    /// </summary>
+    /// <param name="dryRun">If true, does not apply changes to Cosmos DB.</param>
+    /// <param name="ct">A cancellation token.</param>
     public virtual async Task EvaluateAsync(bool dryRun = false, CancellationToken ct = default)
     {
         Log.Information("Total operations queued: {@PatchesCount}", this.totalOperationsCount);
@@ -101,6 +113,7 @@ public abstract class BaseBulkOperationStrategy<TRecord, TPartitionKey> : IBulkO
     /// Retrieves an instance of a Cosmos DB client.
     /// </summary>
     /// <param name="settings">The Cosmos DB settings.</param>
+    /// <param name="useSystemTextJson">Flag for using the System.Text.Json instead of NewtonsoftJson.</param>
     /// <returns>An instance of <see cref="CosmosClient"/>.</returns>
     protected static CosmosClient GetCosmosClient(CosmosSettings settings, bool useSystemTextJson = false)
     {

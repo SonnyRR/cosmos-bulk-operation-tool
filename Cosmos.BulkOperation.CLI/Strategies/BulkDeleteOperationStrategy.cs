@@ -19,11 +19,17 @@ namespace Cosmos.BulkOperation.CLI.Strategies;
 /// </summary>
 /// <typeparam name="TRecord">The type of records to insert.</typeparam>
 /// <typeparam name="TPartitionKeyType">The partition key type</typeparam>
-/// <inheritdoc cref="BaseBulkOperationStrategy{TRecord, TPartitionKeyType}"/>
+
 public abstract class BulkDeleteOperationStrategy<TRecord, TPartitionKeyType> : BaseBulkOperationStrategy<TRecord, TPartitionKeyType>
     where TRecord : class
     where TPartitionKeyType : PartitionKeyType
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BulkDeleteOperationStrategy{TRecord, TPartitionKeyType}"/> class.
+    /// </summary>
+    /// <param name="cosmosSettings">The Cosmos DB settings.</param>
+    /// <param name="containerSettings">The container settings.</param>
+    /// <param name="useSystemTextJson">Flag for using System.Text.Json.</param>
     protected BulkDeleteOperationStrategy(CosmosSettings cosmosSettings, ContainerSettings containerSettings, bool useSystemTextJson = false)
         : base(cosmosSettings, containerSettings, useSystemTextJson)
     {

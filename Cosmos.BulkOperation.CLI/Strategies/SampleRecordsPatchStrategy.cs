@@ -17,15 +17,25 @@ namespace Cosmos.BulkOperation.CLI.Strategies;
 /// <remarks>
 /// Changes all checkpoint pin colors to 'Black' for records, that match a query.
 /// </remarks>
-/// <inheritdoc cref="BulkPatchOperationStrategy{Run, PartitionKeyType.StringPartitionKey}"/>
+
 [SettingsKey("RunSettings")]
 public class SampleRecordsPatchStrategy : BulkPatchOperationStrategy<Run, PartitionKeyType.StringPartitionKey>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SampleRecordsPatchStrategy"/> class.
+    /// </summary>
+    /// <param name="cosmosSettings">The Cosmos DB settings.</param>
+    /// <param name="containerSettings">The container settings.</param>
     public SampleRecordsPatchStrategy(CosmosSettings cosmosSettings, ContainerSettings containerSettings)
         : base(cosmosSettings, containerSettings, useSystemTextJson: true)
     {
     }
 
+    /// <summary>
+    /// Executes the bulk patching of sample records.
+    /// </summary>
+    /// <param name="dryRun">If true, does not apply changes to Cosmos DB.</param>
+    /// <param name="ct">A cancellation token.</param>
     public override async Task EvaluateAsync(bool dryRun = false, CancellationToken ct = default)
     {
         var feed = this.GetFeedIterator();
