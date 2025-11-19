@@ -14,7 +14,7 @@ indent_style = space
 indent_size = 4
 tab_width = 4
 
-[*.{json,xml,yml,yaml,csproj,props,sln}]
+[*.{json,xml,yml,yaml,csproj,props,slnx}]
 indent_size = 2
 
 # C# files
