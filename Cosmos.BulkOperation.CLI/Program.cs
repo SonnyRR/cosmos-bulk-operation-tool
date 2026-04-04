@@ -1,18 +1,21 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-using CommandLine;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+using Serilog;
+
+using Spectre.Console;
+using Spectre.Console.Cli;
 
 using Cosmos.BulkOperation.CLI.Settings;
 using Cosmos.BulkOperation.CLI.Strategies;
-
-using Microsoft.Extensions.Configuration;
-
-using Serilog;
 
 namespace Cosmos.BulkOperation.CLI;
 
@@ -21,84 +24,155 @@ namespace Cosmos.BulkOperation.CLI;
 /// </summary>
 public static class Program
 {
-    private const string APP_EXIT_USER_INPUT = "e";
-
-    private static readonly List<Type> AvailableRecordMutationStrategyTypes = [.. Assembly
-        .GetEntryAssembly()
-        .GetTypes()
-        .Where(t => typeof(IBulkOperationStrategy).IsAssignableFrom(t)
-                    && !t.IsAbstract
-                    && Attribute.IsDefined(t, typeof(SettingsKeyAttribute)))
-        .OrderBy(t => t.Name)];
-
     /// <summary>
     /// Main entry point for the application.
     /// </summary>
     /// <param name="args">Command-line arguments.</param>
-    public static async Task Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
-        // Set up a cancellation token source when the user forcibly
-        // tries to stop the application with CTRL+C.
-        using var cancellationTokenSource = new CancellationTokenSource();
+        var services = new ServiceCollection();
+
+        var rootConfiguration = BuildConfiguration();
+        services.AddSingleton<IConfigurationRoot>(rootConfiguration);
+        services.AddSingleton<IAnsiConsole>(_ => AnsiConsole.Console);
+
+        var registrar = new TypeRegistrar(services);
+
+        var app = new CommandApp<BulkOperationCommand>(registrar);
+        app.Configure(config =>
+        {
+            config.SetApplicationName("cosmos-bulk-operation-tool");
+            config.AddExample("--dry-run");
+            config.AddExample();
+        });
+
+        return await app.RunAsync(args);
+    }
+
+    /// <summary>
+    /// Builds the root application configuration.
+    /// </summary>
+    private static IConfigurationRoot BuildConfiguration() => new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")}.json", optional: true, reloadOnChange: true)
+        .Build();
+}
+
+/// <summary>
+/// Command class for the bulk operation tool.
+/// </summary>
+public class BulkOperationCommand : Command<BulkOperationCommand.Settings>
+{
+    /// <summary>
+    /// Command settings.
+    /// </summary>
+    public class Settings : CommandSettings
+    {
+        /// <summary>
+        /// Gets or sets a value indicating whether to run in dry-run mode (no changes applied to Cosmos DB).
+        /// </summary>
+        [CommandOption("--dry-run")]
+        [Description("Dry-run mode, allowing for changes to be scheduled, but not evaluated on the destination Cosmos database. Used for debugging.")]
+        public bool DryRun { get; set; }
+
+        /// <summary>
+        /// Gets or sets the strategy name to execute directly, bypassing the interactive prompt.
+        /// </summary>
+        [CommandOption("--strategy")]
+        [Description("The name of the strategy to execute directly, bypassing the interactive prompt.")]
+        public string? Strategy { get; set; }
+    }
+
+    private readonly IConfigurationRoot rootConfiguration;
+    private readonly IAnsiConsole console;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BulkOperationCommand"/> class.
+    /// </summary>
+    /// <param name="rootConfiguration">The root configuration.</param>
+    /// <param name="console">The console interface.</param>
+    public BulkOperationCommand(
+        IConfigurationRoot rootConfiguration,
+        IAnsiConsole console)
+    {
+        this.rootConfiguration = rootConfiguration ?? throw new ArgumentNullException(nameof(rootConfiguration));
+        this.console = console ?? throw new ArgumentNullException(nameof(console));
+    }
+
+    /// <inheritdoc />
+    protected override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    {
+        return ExecuteAsync(settings, cancellationToken).GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    /// Executes the bulk operation command asynchronously.
+    /// </summary>
+    /// <param name="settings">The command settings.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    private async Task<int> ExecuteAsync(Settings settings, CancellationToken cancellationToken)
+    {
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         Console.CancelKeyPress += (s, e) =>
         {
-            cancellationTokenSource.Cancel();
+            linkedCts.Cancel();
             e.Cancel = true;
         };
 
-        await Parser.Default.ParseArguments<Arguments>(args)
-            .WithParsedAsync(async cliArguments =>
+        ConfigureSerilog(rootConfiguration);
+
+        var headerPanel = new Panel(
+            new Markup("Cosmos DB Bulk Operation CLI tool\n[grey]Author: Vasil Kotsev | 26/09/2024[/]"))
+            .Header("[bold cyan]Cosmos Bulk Operation[/]")
+            .BorderColor(Color.Cyan);
+        console.Write(headerPanel);
+
+        if (settings.DryRun)
+        {
+            console.Write(new Rule("[yellow]Dry-run mode enabled[/]").RuleStyle("yellow").Centered());
+        }
+
+        Thread.Sleep(500);
+
+        var applicationSettings = GetApplicationSettings(rootConfiguration);
+        var chosenStrategy = !string.IsNullOrEmpty(settings.Strategy)
+            ? ResolveStrategy(settings.Strategy, applicationSettings)
+            : SelectStrategy(applicationSettings);
+
+        if (chosenStrategy != null)
+        {
+            Thread.Sleep(500);
+
+            console.WriteLine();
+            var confirmed = console.Confirm("Are you sure you want to mutate the records?");
+            if (confirmed)
             {
-                var rootApplicationConfiguration = GetRootConfiguration();
-
-                ConfigureSerilog(rootApplicationConfiguration);
-
-                Log.Information("=========== Cosmos DB Bulk Operation CLI tool ===========");
-                Log.Information("=========== Author: Vasil Kotsev | 26/09/2024 ===========");
-
-                if (cliArguments.DryRun)
+                try
                 {
-                    Log.Warning("Dry-run mode enabled.");
+                    await chosenStrategy.EvaluateAsync(settings.DryRun, linkedCts.Token);
                 }
-
-                // Give some time for the logs to be flushed before the confirmation prompt.
-                Thread.Sleep(500);
-
-                var chosenPatchStrategy = GetPatchStrategyFromPrompt(GetApplicationSettings(rootApplicationConfiguration));
-
-                if (chosenPatchStrategy != null)
+                catch (Exception ex)
                 {
-                    // Give some time for the logs to be flushed.
-                    Thread.Sleep(500);
-
-                    Console.WriteLine();
-                    Console.Write("Are you sure you want to mutate the records ? (y/n) ");
-                    var confirmationResponse = Console.ReadKey();
-                    Console.WriteLine();
-
-                    if (confirmationResponse.Key == ConsoleKey.Y)
-                    {
-                        try
-                        {
-                            await chosenPatchStrategy.EvaluateAsync(cliArguments.DryRun, cancellationTokenSource.Token);
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error(ex, "Terminal error");
-                        }
-                    }
-                    else
-                    {
-                        Log.Information("User did not approve the mutation of the records. Exiting...");
-                    }
+                    Log.Error(ex, "Terminal error");
+                    console.WriteException(ex);
+                    return 1;
                 }
-                else
-                {
-                    Log.Information("No strategy was provided. Exiting...");
-                }
+            }
+            else
+            {
+                Log.Information("User did not approve the mutation of the records. Exiting...");
+                console.MarkupLine("[grey]User did not approve the mutation of the records. Exiting...[/]");
+            }
+        }
+        else
+        {
+            Log.Information("No strategy was provided. Exiting...");
+            console.MarkupLine("[grey]No strategy was provided. Exiting...[/]");
+        }
 
-                await Log.CloseAndFlushAsync();
-            });
+        await Log.CloseAndFlushAsync();
+        return 0;
     }
 
     /// <summary>
@@ -113,65 +187,95 @@ public static class Program
     }
 
     /// <summary>
-    /// Retrieve the root application configuration.
+    /// Resolves a strategy by name from the command-line argument.
     /// </summary>
-    /// <returns>An instance of <see cref="IConfigurationRoot"/>.</returns>
-    private static IConfigurationRoot GetRootConfiguration() => new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-            .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")}.json", optional: true, reloadOnChange: true)
-            .Build();
-
-    /// <summary>
-    /// Prompts the user to select which strategy he wants to evaluate &amp; creates an instance of it.
-    /// </summary>
+    /// <param name="strategyName">The name of the strategy to resolve.</param>
     /// <param name="applicationSettings">The application's main settings.</param>
-    /// <returns>The strategy instance.</returns>
-    private static IBulkOperationStrategy GetPatchStrategyFromPrompt(ApplicationSettings applicationSettings)
+    /// <returns>The strategy instance, or null if not found.</returns>
+    private IBulkOperationStrategy ResolveStrategy(string strategyName, ApplicationSettings applicationSettings)
     {
         ArgumentNullException.ThrowIfNull(applicationSettings);
         ArgumentNullException.ThrowIfNull(applicationSettings.CosmosSettings);
         ArgumentNullException.ThrowIfNull(applicationSettings.ContainerConfigSectionsAndSettings);
 
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine();
-        Console.WriteLine("Available strategies:");
-        Console.ForegroundColor = ConsoleColor.Cyan;
+        var strategyTypes = Assembly
+            .GetEntryAssembly()
+            .GetTypes()
+            .Where(t => typeof(IBulkOperationStrategy).IsAssignableFrom(t)
+                        && !t.IsAbstract
+                        && Attribute.IsDefined(t, typeof(SettingsKeyAttribute)))
+            .ToList();
 
-        for (var i = 0; i < AvailableRecordMutationStrategyTypes.Count; i++)
+        var chosenStrategyType = strategyTypes.FirstOrDefault(t => t.Name == strategyName);
+        if (chosenStrategyType == null)
         {
-            Console.WriteLine($"    {i + 1}. {AvailableRecordMutationStrategyTypes[i].Name}");
-        }
-
-        Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.Write("Choose strategy index ('e' - Exit): ");
-
-        int selectedIndex;
-        var userInput = Console.ReadLine();
-        while (userInput == APP_EXIT_USER_INPUT || !int.TryParse(userInput, out selectedIndex) || selectedIndex < 0 || selectedIndex > AvailableRecordMutationStrategyTypes.Count)
-        {
-            if (userInput != APP_EXIT_USER_INPUT)
-            {
-                Console.WriteLine("Invalid index. Try again");
-                userInput = Console.ReadLine();
-                continue;
-            }
-
+            Log.Error("Strategy {@Strategy} not found", strategyName);
+            console.MarkupLine("[red]Strategy '{Strategy}' not found.[/]", strategyName);
             return null;
         }
 
-        Console.ForegroundColor = ConsoleColor.Gray;
+        var configKey = chosenStrategyType.GetCustomAttribute<SettingsKeyAttribute>();
+        if (!applicationSettings.ContainerConfigSectionsAndSettings.TryGetValue(configKey.Name, out var containerSetting))
+        {
+            Log.Error("Cannot find container settings for configuration key: {@ConfigKey}", configKey.Name);
+            console.MarkupLine("[red]Cannot find container settings for configuration key.[/]");
+            return null;
+        }
 
-        var chosenStrategyType = AvailableRecordMutationStrategyTypes[selectedIndex - 1];
+        Log.Information("Creating instance of {@Strategy}", chosenStrategyType.Name);
+        console.MarkupLine("[green]Selected strategy: {Strategy}[/]", chosenStrategyType.Name);
+
+        return Activator.CreateInstance(chosenStrategyType, applicationSettings.CosmosSettings, containerSetting) as IBulkOperationStrategy;
+    }
+
+    /// <summary>
+    /// Prompts the user to select which strategy to execute.
+    /// </summary>
+    /// <param name="applicationSettings">The application's main settings.</param>
+    /// <returns>The selected strategy instance, or null if the user exits.</returns>
+    private IBulkOperationStrategy SelectStrategy(ApplicationSettings applicationSettings)
+    {
+        ArgumentNullException.ThrowIfNull(applicationSettings);
+        ArgumentNullException.ThrowIfNull(applicationSettings.CosmosSettings);
+        ArgumentNullException.ThrowIfNull(applicationSettings.ContainerConfigSectionsAndSettings);
+
+        var strategyTypes = Assembly
+            .GetEntryAssembly()
+            .GetTypes()
+            .Where(t => typeof(IBulkOperationStrategy).IsAssignableFrom(t)
+                        && !t.IsAbstract
+                        && Attribute.IsDefined(t, typeof(SettingsKeyAttribute)))
+            .OrderBy(t => t.Name)
+            .ToList();
+
+        var strategyNames = strategyTypes.ConvertAll(t => t.Name);
+        strategyNames.Add("Exit");
+
+        var selectedStrategyName = console.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Select a [green]strategy[/] to execute:")
+                .PageSize(10)
+                .MoreChoicesText("[grey](Move up and down to see more strategies)[/]")
+                .HighlightStyle(new Style(Color.Cyan1, decoration: Decoration.Bold))
+                .AddChoices(strategyNames));
+
+        if (selectedStrategyName.Equals("Exit", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        var chosenStrategyType = strategyTypes.First(t => t.Name == selectedStrategyName);
         var configKey = chosenStrategyType.GetCustomAttribute<SettingsKeyAttribute>();
 
         if (!applicationSettings.ContainerConfigSectionsAndSettings.TryGetValue(configKey.Name, out var containerSetting))
         {
             Log.Error("Cannot find container settings for configuration key: {@ConfigKey}", configKey.Name);
-
+            console.MarkupLine("[red]Cannot find container settings for configuration key.[/]");
             return null;
         }
 
         Log.Information("Creating instance of {@Strategy}", chosenStrategyType.Name);
+        console.MarkupLine("[green]Selected strategy: {Strategy}[/]", chosenStrategyType.Name);
 
         return Activator.CreateInstance(chosenStrategyType, applicationSettings.CosmosSettings, containerSetting) as IBulkOperationStrategy;
     }
@@ -198,4 +302,52 @@ public static class Program
             ContainerConfigSectionsAndSettings = containerSettings
         };
     }
+}
+
+/// <summary>
+/// Type registrar for Spectre.Console.Cli using Microsoft.Extensions.DependencyInjection.
+/// </summary>
+public class TypeRegistrar : ITypeRegistrar
+{
+    private readonly IServiceCollection builder;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TypeRegistrar"/> class.
+    /// </summary>
+    /// <param name="builder">The service collection to register types with.</param>
+    public TypeRegistrar(IServiceCollection builder) => this.builder = builder;
+
+    /// <inheritdoc />
+    public ITypeResolver Build() => new TypeResolver(builder.BuildServiceProvider());
+
+    /// <inheritdoc />
+    public void Register(Type service, Type implementation) => builder.AddSingleton(service, implementation);
+
+    /// <inheritdoc />
+    public void RegisterInstance(Type service, object implementation) => builder.AddSingleton(service, implementation);
+
+    /// <inheritdoc />
+    public void RegisterLazy(Type service, Func<object> factory)
+    {
+        ArgumentNullException.ThrowIfNull(factory);
+        builder.AddSingleton(service, _ => factory());
+    }
+}
+
+/// <summary>
+/// Type resolver for Spectre.Console.Cli using Microsoft.Extensions.DependencyInjection.
+/// </summary>
+public class TypeResolver : ITypeResolver
+{
+    private readonly IServiceProvider provider;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TypeResolver"/> class.
+    /// </summary>
+    /// <param name="provider">The service provider to resolve types from.</param>
+    public TypeResolver(IServiceProvider provider)
+        => this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
+
+    /// <inheritdoc />
+    public object Resolve(Type type) => provider.GetService(type);
 }
