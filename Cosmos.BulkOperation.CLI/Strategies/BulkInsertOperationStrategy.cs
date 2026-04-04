@@ -18,8 +18,7 @@ namespace Cosmos.BulkOperation.CLI.Strategies;
 /// Base bulk record insertion strategy.
 /// </summary>
 /// <typeparam name="TRecord">The type of records to insert.</typeparam>
-/// <typeparam name="TPartitionKeyType">The partition key type</typeparam>
-
+/// <typeparam name="TPartitionKeyType">The partition key type.</typeparam>
 public abstract class BulkInsertOperationStrategy<TRecord, TPartitionKeyType> : BaseBulkOperationStrategy<TRecord, TPartitionKeyType>
     where TRecord : class
     where TPartitionKeyType : PartitionKeyType
@@ -48,7 +47,7 @@ public abstract class BulkInsertOperationStrategy<TRecord, TPartitionKeyType> : 
             .CreateItemAsync(item, partitionKeyValue, itemRequestOptions, ct)
             .ContinueWith(task =>
             {
-                HttpStatusCode statusCode = HttpStatusCode.MisdirectedRequest;
+                var statusCode = HttpStatusCode.MisdirectedRequest;
                 if (task.IsCompletedSuccessfully)
                 {
                     Interlocked.Increment(ref this.completedTasksCount);

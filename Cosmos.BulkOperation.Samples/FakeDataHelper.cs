@@ -13,7 +13,7 @@ public static class FakeDataHelper
 {
     private static readonly Faker FAKER = new();
     private static readonly IEnumerable<string> EMAIL_LIST = Enumerable.Range(1, 1500)
-        .Select(_ => FAKER.Internet.Email().ToLower())
+        .Select(_ => FAKER.Internet.Email().ToLowerInvariant())
         .ToArray();
 
     /// <summary>

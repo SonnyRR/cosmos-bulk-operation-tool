@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 using Cosmos.BulkOperation.CLI.Settings;
 using Cosmos.BulkOperation.Samples;
 
-using Microsoft.Azure.Cosmos;
-
 namespace Cosmos.BulkOperation.CLI.Strategies;
 
 /// <summary>

@@ -17,9 +17,8 @@ namespace Cosmos.BulkOperation.CLI.Strategies;
 /// <summary>
 /// Base bulk record patching strategy.
 /// </summary>
-/// <typeparam name="TRecord">The type of records to insert.</typeparam>
-/// <typeparam name="TPartitionKeyType">The partition key type</typeparam>
-
+/// <typeparam name="TRecord">The type of records to patch.</typeparam>
+/// <typeparam name="TPartitionKeyType">The partition key type.</typeparam>
 public abstract class BulkPatchOperationStrategy<TRecord, TPartitionKeyType> : BaseBulkOperationStrategy<TRecord, TPartitionKeyType>
     where TRecord : class
     where TPartitionKeyType : PartitionKeyType
@@ -67,7 +66,7 @@ public abstract class BulkPatchOperationStrategy<TRecord, TPartitionKeyType> : B
                 ct)
             .ContinueWith(task =>
             {
-                HttpStatusCode statusCode = HttpStatusCode.MisdirectedRequest;
+                var statusCode = HttpStatusCode.MisdirectedRequest;
                 if (task.IsCompletedSuccessfully)
                 {
                     Interlocked.Increment(ref this.completedTasksCount);

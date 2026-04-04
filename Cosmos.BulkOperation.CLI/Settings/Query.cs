@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Cosmos.BulkOperation.CLI.Settings;
 
 /// <summary>
