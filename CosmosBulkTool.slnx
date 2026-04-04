@@ -8,4 +8,6 @@
   </Project>
 
   <Project Path="Cosmos.BulkOperation.Samples/Cosmos.BulkOperation.Samples.csproj" />
+
+  <Project Path="Cosmos.BulkOperation.IntegrationTests/Cosmos.BulkOperation.IntegrationTests.csproj" />
 </Solution>

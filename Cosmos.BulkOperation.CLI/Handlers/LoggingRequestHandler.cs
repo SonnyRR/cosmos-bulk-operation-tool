@@ -20,7 +20,7 @@ public class LoggingRequestHandler : RequestHandler
     /// <returns>The response message from Cosmos DB.</returns>
     public override async Task<ResponseMessage> SendAsync(RequestMessage request, CancellationToken cancellationToken)
     {
-        ResponseMessage response = await base.SendAsync(request, cancellationToken);
+        var response = await base.SendAsync(request, cancellationToken);
 
         if (!response.IsSuccessStatusCode)
         {

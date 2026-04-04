@@ -28,7 +28,7 @@ public abstract class BaseBulkOperationStrategy<TRecord, TPartitionKey> : IBulkO
     where TRecord : class
     where TPartitionKey : PartitionKeyType
 {
-        /// <summary>
+    /// <summary>
     /// The number of completed bulk operation tasks.
     /// </summary>
     protected int completedTasksCount;
@@ -124,9 +124,13 @@ public abstract class BaseBulkOperationStrategy<TRecord, TPartitionKey> : IBulkO
             .WithRequestTimeout(settings.RequestTimeOut)
             // Let the SDK retry it first, then fallback to a custom policy
             .WithThrottlingRetryOptions(settings.MaxRetryWaitTimeOnRateLimitedRequests, settings.MaxRetryAttemptsOnRateLimitedRequests)
-            .AddCustomHandlers(new LoggingRequestHandler(), new ThrottlingRequestHandler())
-            .WithConnectionModeDirect()
-            .WithLimitToEndpoint(true);
+            .AddCustomHandlers(new LoggingRequestHandler(), new ThrottlingRequestHandler());
+
+        clientBuilder = settings.ConnectionMode == CLI.Settings.CosmosConnectionMode.Gateway
+            ? clientBuilder.WithConnectionModeGateway()
+            : clientBuilder.WithConnectionModeDirect();
+
+        clientBuilder = clientBuilder.WithLimitToEndpoint(true);
 
         clientBuilder = useSystemTextJson
             ? clientBuilder.WithSystemTextJsonSerializerOptions(new JsonSerializerOptions

@@ -26,7 +26,5 @@ public sealed class JsonPascalCaseNamingPolicy : JsonNamingPolicy
     }
 
     private static void UppercaseFirstLetter(Span<char> chars)
-    {
-        chars[0] = char.ToUpperInvariant(chars[0]);
-    }
+        => chars[0] = char.ToUpperInvariant(chars[0]);
 }

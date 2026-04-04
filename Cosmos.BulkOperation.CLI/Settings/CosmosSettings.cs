@@ -50,4 +50,26 @@ public class CosmosSettings
     /// Default set of query request options
     /// </summary>
     public QueryRequestOptions QueryRequestOptions { get; set; }
+
+    /// <summary>
+    /// The connection mode to use when connecting to the Azure Cosmos DB service.
+    /// Defaults to Direct if not specified.
+    /// </summary>
+    public CosmosConnectionMode ConnectionMode { get; set; }
+}
+
+/// <summary>
+/// Specifies the connection mode for the Cosmos DB client.
+/// </summary>
+public enum CosmosConnectionMode
+{
+    /// <summary>
+    /// Direct connection mode.
+    /// </summary>
+    Direct,
+
+    /// <summary>
+    /// Gateway connection mode.
+    /// </summary>
+    Gateway
 }
