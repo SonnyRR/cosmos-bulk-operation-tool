@@ -126,7 +126,7 @@ public abstract class BaseBulkOperationStrategy<TRecord, TPartitionKey> : IBulkO
             .WithThrottlingRetryOptions(settings.MaxRetryWaitTimeOnRateLimitedRequests, settings.MaxRetryAttemptsOnRateLimitedRequests)
             .AddCustomHandlers(new LoggingRequestHandler(), new ThrottlingRequestHandler());
 
-        clientBuilder = settings.ConnectionMode == CLI.Settings.CosmosConnectionMode.Gateway
+        clientBuilder = settings.ConnectionMode == CosmosConnectionMode.Gateway
             ? clientBuilder.WithConnectionModeGateway()
             : clientBuilder.WithConnectionModeDirect();
 

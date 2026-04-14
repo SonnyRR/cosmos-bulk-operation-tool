@@ -55,7 +55,7 @@ public class CosmosSettings
     /// The connection mode to use when connecting to the Azure Cosmos DB service.
     /// Defaults to Direct if not specified.
     /// </summary>
-    public CosmosConnectionMode ConnectionMode { get; set; }
+    public CosmosConnectionMode ConnectionMode { get; set; } = CosmosConnectionMode.Direct;
 }
 
 /// <summary>
