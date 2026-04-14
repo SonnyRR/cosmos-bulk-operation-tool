@@ -59,14 +59,18 @@ The app also supports a couple of CLI parameters:
 
 ```powershell
 .\Cosmos.BulkOperation.CLI.exe --help
-Cosmos.BulkOperation.CLI 1.0.0+9ca8b955b780245b05b331336bcce77a240f1285
-Copyright (C) 2024 Vasil Kotsev
 
-  --dry-run    (Default: false) Dry-run mode, allowing for changes to be scheduled, but not evaluated on the destination Cosmos database. Used for debugging.
+USAGE:
+    cosmos-bulk-operation-tool [OPTIONS]
 
-  --help       Display this help screen.
+EXAMPLES:
+    cosmos-bulk-operation-tool --dry-run
+    cosmos-bulk-operation-tool
 
-  --version    Display version information.
+OPTIONS:
+    -h, --help        Prints help information
+        --dry-run     Dry-run mode, allowing for changes to be scheduled, but not evaluated on the destination Cosmos database. Used for debugging
+        --strategy    The name of the strategy to execute directly, bypassing the interactive prompt
 ```
 
 ## 🗒️ Logs

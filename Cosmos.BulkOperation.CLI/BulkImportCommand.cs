@@ -83,7 +83,7 @@ public class BulkImportCommand : Command<BulkImportCommand.Settings>
             };
 
             var headerPanel = new Panel(
-                new Markup("Cosmos DB Bulk Operation CLI tool\n[grey]Author: Vasil Kotsev | 26/09/2024[/]"))
+                new Markup("Cosmos DB Bulk Operation CLI tool\n[grey]Author: Vasil Kotsev | 14/04/2026[/]"))
                 .Header("[bold cyan]Cosmos Bulk Operation[/]")
                 .BorderColor(Color.Cyan);
             this.console.Write(headerPanel);
