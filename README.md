@@ -1,6 +1,6 @@
 # 🌌 Azure Cosmos DB Bulk Operation CLI Tool
 
-[![Build](https://github.com/SonnyRR/cosmos-bulk-operation-tool/actions/workflows/dotnet.yml/badge.svg)](https://github.com/SonnyRR/cosmos-bulk-operation-tool/actions/workflows/dotnet.yml)
+[![Build](https://github.com/SonnyRR/cosmos-bulk-operation-tool/actions/workflows/ci.yml/badge.svg)](https://github.com/SonnyRR/cosmos-bulk-operation-tool/actions/workflows/ci.yml)
 
 Custom CLI tool, written in `C#`, for bulk updating/inserting & deleting Azure Cosmos Database records. It leverages the Azure Cosmos DB SDK, Bulk Executor context, Patch API and other performant configurations. It aims to serve as a showcase of best practices for working with the SDK for throughput performant workloads and as a starting point for any real-world bulk operation scenarios.
 
