@@ -400,3 +400,6 @@ FodyWeavers.xsd
 
 # macOS
 .DS_Store
+
+# Log files
+bulk-operation-cli-tool-log-*.txt
