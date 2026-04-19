@@ -33,6 +33,7 @@ The `vnext-preview` image starts up significantly faster and does not require SS
 
 > [!WARNING]
 > This version only supports Gateway mode (see [feature support](https://learn.microsoft.com/en-us/azure/cosmos-db/emulator-linux#feature-support)).
+> The .NET SDK for Azure Cosmos DB doesn't support bulk execution in the emulator (see [limitations](https://learn.microsoft.com/en-us/azure/cosmos-db/emulator-linux#limitations)).
 
 ```shell
 # Start a podman/docker container with the Azure Cosmos Emulator vnext-preview image.
