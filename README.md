@@ -22,7 +22,40 @@ The tool can be extended with custom strategies and utilized for real production
 ### 🌠 Emulator
 
 In case you want to try this tool in an isolated environment you will need to spin up an instance of the `Azure Cosmos Emulator`.
-The instructions below are for a containerized instance of it, but `Microsoft` provide a native Windows installation, which you can find [here](https://learn.microsoft.com/en-us/azure/cosmos-db/emulator-release-notes).
+
+> [!NOTE]
+> When running the tool against an actual Azure Cosmos DB resource (PROD or NON-PROD), use the `Direct` connection mode for optimal performance.
+> The legacy emulator supports Direct mode; the vnext-preview image supports only Gateway mode.
+
+#### ✨ vnext-preview
+
+The `vnext-preview` image starts up significantly faster and does not require SSL certificate imports.
+
+> [!WARNING]
+> This version only supports Gateway mode (see [feature support](https://learn.microsoft.com/en-us/azure/cosmos-db/emulator-linux#feature-support)).
+
+```shell
+# Start a podman/docker container with the Azure Cosmos Emulator vnext-preview image.
+podman run -p 37125:8081 -p 37126:1234 --name azcdb -d -e "AZURE_COSMOS_EMULATOR_ENABLE_DATA_PERSISTENCE=true" mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator:vnext-preview
+```
+
+Once running, you can connect using the following configuration:
+
+```json
+{
+    "CosmosSettings": {
+        "EndpointUrl": "http://localhost:37125/",
+        "AuthorizationKey": "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==",
+        "ConnectionMode": "Gateway"
+    }
+}
+```
+
+Verify the emulator is running at https://localhost:37125/\_explorer/index.html.
+
+#### 🗄️ latest (legacy)
+
+The legacy emulator image is kept for historic reasons. It requires SSL certificate import and takes longer to start.
 
 ```shell
 # Start a podman/docker container with the Azure Cosmos Emulator image.
@@ -47,10 +80,13 @@ iwr https://localhost:4387/_explorer/emulator.pem -OutFile ~\Downloads\emulator.
 
 After you've spin up the container & trusted the development SSL cert, navigate to https://localhost:4387/\_explorer/index.html in order to verify that the emulator is up and running.
 
+> ⚠️ The instructions above are for containerized instances. `Microsoft` also provides a native Windows installation, which you can find [here](https://learn.microsoft.com/en-us/azure/cosmos-db/emulator-release-notes).
+
 Useful resources:
 
-https://learn.microsoft.com/en-us/azure/cosmos-db/how-to-develop-emulator?tabs=docker-linux%2Ccsharp&pivots=api-nosql
-https://github.com/Azure/azure-cosmos-db-emulator-docker
+- <https://learn.microsoft.com/en-us/azure/cosmos-db/how-to-develop-emulator?tabs=docker-linux%2Ccsharp&pivots=api-nosql>
+- <https://learn.microsoft.com/en-us/azure/cosmos-db/emulator-linux>
+- <https://github.com/Azure/azure-cosmos-db-emulator-docker>
 
 ## 🔧 Configuration
 
