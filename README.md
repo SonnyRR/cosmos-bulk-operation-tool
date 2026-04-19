@@ -75,7 +75,7 @@ OPTIONS:
 
 ## 🗒️ Logs
 
-Logs are rolled on a daily basis by default on the following path: `"%USERPROFILE%\bulk-operation-cli-tool-log-{date stamp}.txt`. You can configure that path in the `appsettings.json` file.
+Logs are rolled on a daily basis by default to the current working directory with the filename pattern `bulk-operation-cli-tool-log-{date stamp}.txt`. You can configure the path in the `appsettings.json` file.
 
 ## 🔁 Retry policy
 
