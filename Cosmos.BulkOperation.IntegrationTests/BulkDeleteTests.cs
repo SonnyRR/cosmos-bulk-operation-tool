@@ -20,7 +20,7 @@ public class BulkDeleteTests : BaseCosmosTest
     /// <summary>
     /// Verifies that executing with invalid strategy returns non-zero exit code.
     /// </summary>
-    [Fact]
+    [Fact(DisplayName = "Returns non-zero exit code when executed with an invalid delete strategy")]
     public async Task Execute_WithInvalidStrategy_ReturnsNonZeroExitCode()
     {
         var app = CreateAppTester(confirmMutation: false);
@@ -32,7 +32,7 @@ public class BulkDeleteTests : BaseCosmosTest
     /// <summary>
     /// Verifies that executing with help flag returns zero exit code.
     /// </summary>
-    [Fact]
+    [Fact(DisplayName = "Returns zero exit code when executed with help flag (delete)")]
     public async Task Execute_WithHelpFlag_ReturnsZero()
     {
         var app = CreateAppTester(confirmMutation: false);
@@ -44,7 +44,7 @@ public class BulkDeleteTests : BaseCosmosTest
     /// <summary>
     /// Verifies that executing with delete strategy on empty container returns zero.
     /// </summary>
-    [Fact]
+    [Fact(DisplayName = "Returns zero exit code when deleting from an empty container")]
     public async Task Execute_WithDeleteStrategy_OnEmptyContainer_ReturnsZero()
     {
         var app = CreateAppTester(confirmMutation: true);
@@ -56,7 +56,7 @@ public class BulkDeleteTests : BaseCosmosTest
     /// <summary>
     /// Verifies that executing with delete strategy deletes records from Cosmos DB.
     /// </summary>
-    [Fact]
+    [Fact(DisplayName = "Successfully deletes records from Cosmos DB using delete strategy")]
     public async Task Execute_WithDeleteStrategy_DeletesRecordsFromCosmos()
     {
         await TestDataHelper.SeedRecordsAsync(TestContext.Current.CancellationToken);

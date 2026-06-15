@@ -25,7 +25,7 @@ public class BulkPatchTests : BaseCosmosTest
     /// <summary>
     /// Verifies that executing with invalid strategy returns non-zero exit code.
     /// </summary>
-    [Fact]
+    [Fact(DisplayName = "Returns non-zero exit code when executed with an invalid patch strategy")]
     public async Task Execute_WithInvalidStrategy_ReturnsNonZeroExitCode()
     {
         var app = CreateAppTester(confirmMutation: false);
@@ -37,7 +37,7 @@ public class BulkPatchTests : BaseCosmosTest
     /// <summary>
     /// Verifies that executing with help flag returns zero exit code.
     /// </summary>
-    [Fact]
+    [Fact(DisplayName = "Returns zero exit code when executed with help flag (patch)")]
     public async Task Execute_WithHelpFlag_ReturnsZero()
     {
         var app = CreateAppTester(confirmMutation: false);
@@ -49,7 +49,7 @@ public class BulkPatchTests : BaseCosmosTest
     /// <summary>
     /// Verifies that executing with patch strategy on empty container returns zero.
     /// </summary>
-    [Fact]
+    [Fact(DisplayName = "Returns zero exit code when patching an empty container")]
     public async Task Execute_WithPatchStrategy_OnEmptyContainer_ReturnsZero()
     {
         var app = CreateAppTester(confirmMutation: true);
@@ -61,7 +61,7 @@ public class BulkPatchTests : BaseCosmosTest
     /// <summary>
     /// Verifies that executing with patch strategy patches records in Cosmos DB.
     /// </summary>
-    [Fact]
+    [Fact(DisplayName = "Successfully patches records in Cosmos DB using patch strategy")]
     public async Task Execute_WithPatchStrategy_PatchesRecordsInCosmos()
     {
         await TestDataHelper.SeedRecordsAsync(TestContext.Current.CancellationToken);
