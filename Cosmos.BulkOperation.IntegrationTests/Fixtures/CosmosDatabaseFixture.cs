@@ -8,8 +8,6 @@ using Microsoft.Azure.Cosmos.Fluent;
 using Testcontainers.CosmosDb;
 using Testcontainers.Xunit;
 
-using Xunit.Sdk;
-
 namespace Cosmos.BulkOperation.IntegrationTests.Fixtures;
 
 /// <summary>
@@ -22,7 +20,8 @@ public class CosmosDatabaseFixture : ContainerFixture<CosmosDbBuilder, CosmosDbC
     /// <summary>
     /// Creates a new instance of the <see cref="CosmosDatabaseFixture" /> class.
     /// </summary>
-    public CosmosDatabaseFixture(IMessageSink messageSink) : base(messageSink)
+    public CosmosDatabaseFixture()
+        : base(null)
     {
     }
 
