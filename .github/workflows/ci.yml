@@ -29,4 +29,4 @@ jobs:
         run: dotnet build --no-restore
 
       - name: Test
-        run: dotnet test --no-build --logger 'console;verbosity=detailed'
+        run: dotnet test --no-build --output Detailed
