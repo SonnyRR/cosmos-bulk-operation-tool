@@ -5,7 +5,7 @@
 ```bash
 dotnet restore
 dotnet build
-dotnet test --no-build --logger 'console;verbosity=detailed'
+dotnet test --no-build --output Detailed
 ```
 
 ## Important Constraints
