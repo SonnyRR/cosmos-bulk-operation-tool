@@ -29,4 +29,4 @@ jobs:
         run: dotnet build --no-restore
 
       - name: Test
-        run: dotnet test --no-build --output Detailed
+        run: dotnet test --no-build --output Detailed --show-live-output on
