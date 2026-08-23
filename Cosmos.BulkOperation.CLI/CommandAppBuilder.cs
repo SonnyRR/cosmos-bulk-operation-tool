@@ -15,7 +15,7 @@ namespace Cosmos.BulkOperation.CLI;
 /// </summary>
 public class CommandAppBuilder
 {
-    private CommandApp<BulkImportCommand> commandApp;
+    private CommandApp<BulkCosmosCommand> commandApp;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CommandAppBuilder"/> class.
@@ -59,7 +59,7 @@ public class CommandAppBuilder
     /// Builds the command application.
     /// </summary>
     /// <returns>The configured command app.</returns>
-    public CommandApp<BulkImportCommand> Build()
+    public CommandApp<BulkCosmosCommand> Build()
     {
         if (this.commandApp != null)
         {
@@ -70,7 +70,7 @@ public class CommandAppBuilder
 
         var registrar = new SpectreCliTypeRegistrar(this.Services);
 
-        this.commandApp = new CommandApp<BulkImportCommand>(registrar);
+        this.commandApp = new CommandApp<BulkCosmosCommand>(registrar);
         this.commandApp.Configure(config =>
         {
             config.SetApplicationName("cosmos-bulk-operation-tool");

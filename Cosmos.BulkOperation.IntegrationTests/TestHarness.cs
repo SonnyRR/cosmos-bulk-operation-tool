@@ -32,7 +32,7 @@ public static class TestHarness
         var registrar = new SpectreCliTypeRegistrar(services);
 
         var tester = new CommandAppTester(registrar, console: console);
-        tester.SetDefaultCommand<BulkImportCommand>();
+        tester.SetDefaultCommand<BulkCosmosCommand>();
         tester.Configure(config =>
         {
             config.SetApplicationName("cosmos-bulk-operation-tool");

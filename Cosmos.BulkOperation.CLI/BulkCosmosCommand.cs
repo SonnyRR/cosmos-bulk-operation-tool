@@ -17,12 +17,12 @@ using Spectre.Console.Cli;
 namespace Cosmos.BulkOperation.CLI;
 
 /// <summary>
-/// Command for executing bulk import operations against Cosmos DB containers.
+/// Command for executing bulk cosmos operations against Cosmos DB containers.
 /// </summary>
-public class BulkImportCommand : Command<BulkImportCommand.Settings>
+public class BulkCosmosCommand : Command<BulkCosmosCommand.Settings>
 {
     /// <summary>
-    /// Command settings for the bulk import operation.
+    /// Command settings for the bulk cosmos operation.
     /// </summary>
     public class Settings : CommandSettings
     {
@@ -46,12 +46,12 @@ public class BulkImportCommand : Command<BulkImportCommand.Settings>
     private readonly IStrategyProvider strategyProvider;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="BulkImportCommand"/> class.
+    /// Initializes a new instance of the <see cref="BulkCosmosCommand"/> class.
     /// </summary>
     /// <param name="configurationRoot">The configuration root.</param>
     /// <param name="console">The Ansi console for output.</param>
     /// <param name="strategyProvider">The strategy provider for bulk operations.</param>
-    public BulkImportCommand(
+    public BulkCosmosCommand(
         IConfigurationRoot configurationRoot,
         IAnsiConsole console,
         IStrategyProvider strategyProvider)
@@ -62,7 +62,7 @@ public class BulkImportCommand : Command<BulkImportCommand.Settings>
     }
 
     /// <summary>
-    /// Executes the bulk import command.
+    /// Executes the bulk cosmos command.
     /// </summary>
     /// <param name="context">The command context.</param>
     /// <param name="settings">The command settings.</param>
