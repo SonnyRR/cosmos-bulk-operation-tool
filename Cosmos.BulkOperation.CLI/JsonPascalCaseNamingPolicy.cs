@@ -22,6 +22,7 @@ public sealed class JsonPascalCaseNamingPolicy : JsonNamingPolicy
 
         var chars = name.ToCharArray();
         UppercaseFirstLetter(chars);
+
         return new string(chars);
     }
 

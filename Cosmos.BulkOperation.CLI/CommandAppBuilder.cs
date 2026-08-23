@@ -94,6 +94,7 @@ public class CommandAppBuilder
         console ??= AnsiConsole.Console;
         var configuration = ConfigurationProvider.BuildConfiguration(environment);
         ConfigurationProvider.ConfigureSerilog(configuration);
+
         return new CommandAppBuilder(new ServiceCollection(), configuration, console);
     }
 }

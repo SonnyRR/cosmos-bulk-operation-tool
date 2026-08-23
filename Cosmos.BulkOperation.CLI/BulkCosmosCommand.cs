@@ -86,6 +86,7 @@ public class BulkCosmosCommand : Command<BulkCosmosCommand.Settings>
                 new Markup("Cosmos DB Bulk Operation CLI tool\n[grey]Author: Vasil Kotsev | 14/04/2026[/]"))
                 .Header("[bold cyan]Cosmos Bulk Operation[/]")
                 .BorderColor(Color.Cyan);
+
             this.console.Write(headerPanel);
 
             if (settings.DryRun)
@@ -106,6 +107,7 @@ public class BulkCosmosCommand : Command<BulkCosmosCommand.Settings>
 
                 this.console.WriteLine();
                 var confirmed = await this.console.ConfirmAsync("Are you sure you want to mutate the records?", cancellationToken: linkedCts.Token);
+
                 if (confirmed)
                 {
                     try
@@ -129,16 +131,19 @@ public class BulkCosmosCommand : Command<BulkCosmosCommand.Settings>
             {
                 Log.Error("No valid strategy was provided. Exiting...");
                 this.console.MarkupLine("[red]No valid strategy was provided. Exiting...[/]");
+
                 return 1;
             }
 
             await Log.CloseAndFlushAsync();
+
             return 0;
         }
         catch (Exception ex)
         {
             this.console.MarkupLine($"[red]Unhandled exception: {ex.Message}[/]");
             this.console.MarkupLine($"[red]Stack trace: {ex.StackTrace}[/]");
+
             return -1;
         }
     }
@@ -153,6 +158,7 @@ public class BulkCosmosCommand : Command<BulkCosmosCommand.Settings>
         {
             Log.Error("Strategy {@Strategy} not found", strategyName);
             this.console.MarkupLine("[red]Strategy '{0}' not found.[/]", strategyName);
+
             return null;
         }
 
@@ -160,6 +166,7 @@ public class BulkCosmosCommand : Command<BulkCosmosCommand.Settings>
         {
             Log.Error("Cannot find container settings for configuration key: {@ConfigKey}", configKey);
             this.console.MarkupLine("[red]Cannot find container settings for configuration key.[/]");
+
             return null;
         }
 
@@ -167,10 +174,12 @@ public class BulkCosmosCommand : Command<BulkCosmosCommand.Settings>
         {
             Log.Error("Strategy {@Strategy} not found", strategyName);
             this.console.MarkupLine("[red]Strategy '{0}' not found.[/]", strategyName);
+
             return null;
         }
 
         this.console.MarkupLine("[green]Selected strategy: {0}[/]", strategyName);
+
         return strategy;
     }
 
@@ -207,6 +216,7 @@ public class BulkCosmosCommand : Command<BulkCosmosCommand.Settings>
         {
             Log.Error("Strategy {@Strategy} not found", selectedStrategyName);
             this.console.MarkupLine("[red]Strategy '{0}' not found.[/]", selectedStrategyName);
+
             return null;
         }
 
@@ -214,6 +224,7 @@ public class BulkCosmosCommand : Command<BulkCosmosCommand.Settings>
         {
             Log.Error("Cannot find container settings for configuration key: {@ConfigKey}", configKey);
             this.console.MarkupLine("[red]Cannot find container settings for configuration key.[/]");
+
             return null;
         }
 
@@ -221,10 +232,12 @@ public class BulkCosmosCommand : Command<BulkCosmosCommand.Settings>
         {
             Log.Error("Strategy {@Strategy} not found", selectedStrategyName);
             this.console.MarkupLine("[red]Strategy '{0}' not found.[/]", selectedStrategyName);
+
             return null;
         }
 
         this.console.MarkupLine("[green]Selected strategy: {0}[/]", selectedStrategyName);
+
         return strategy;
     }
 }

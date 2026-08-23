@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using Cosmos.BulkOperation.IntegrationTests.Fixtures;
 using Cosmos.BulkOperation.Samples;
 
-using Microsoft.Azure.Cosmos;
-
 using Shouldly;
 
 namespace Cosmos.BulkOperation.IntegrationTests;

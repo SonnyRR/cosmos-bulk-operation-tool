@@ -79,6 +79,7 @@ public class StrategyProvider : IStrategyProvider
         }
 
         configKey = null;
+
         return false;
     }
 
@@ -122,6 +123,7 @@ public class StrategyProvider : IStrategyProvider
         if (!this.strategyMap.TryGetValue(strategyName, out var entry))
         {
             Log.Error("Strategy {@Strategy} not found", strategyName);
+
             return false;
         }
 
@@ -132,11 +134,13 @@ public class StrategyProvider : IStrategyProvider
                 cosmosSettings,
                 containerSettings);
             Log.Information("Creating instance of {@Strategy}", strategyName);
+
             return true;
         }
         catch (Exception ex)
         {
             Log.Error(ex, "Failed to create strategy {@Strategy}", strategyName);
+
             return false;
         }
     }
