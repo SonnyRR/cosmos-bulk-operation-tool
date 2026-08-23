@@ -55,12 +55,7 @@ Run with `--strategy YourStrategyName` to bypass the interactive prompt.
 
 ## Code Standards
 
-Most standards are enforced via `.editorconfig` and Roslyn analyzers (Roslynator, Sonar). Build will fail if violated.
-
-Notable repo-specific conventions:
-- **Indentation**: 4 spaces for C#, 2 for JSON/XML/CSProj
-- **File-scoped namespaces**: Use `namespace X.Y;` style
-- **Interface naming**: Prefix with `I` (e.g., `IBulkOperationStrategy`)
+Standards are enforced via `.editorconfig` and Roslyn analyzers (Roslynator, Sonar). Build will fail if violated.
 
 ## Architecture
 
