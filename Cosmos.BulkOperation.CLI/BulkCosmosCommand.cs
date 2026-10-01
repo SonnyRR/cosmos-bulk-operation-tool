@@ -68,7 +68,7 @@ public class BulkCosmosCommand : Command<BulkCosmosCommand.Settings>
     /// <param name="settings">The command settings.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>The exit code.</returns>
-    protected override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    public override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
         => this.ExecuteAsync(settings, cancellationToken).GetAwaiter().GetResult();
 
     private async Task<int> ExecuteAsync(Settings settings, CancellationToken cancellationToken)
