@@ -1,6 +1,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 
+using Cosmos.BulkOperation.TestUtilities;
+
 using Spectre.Console.Testing;
 
 namespace Cosmos.BulkOperation.IntegrationTests;
@@ -17,10 +19,7 @@ public static class TestDataHelper
     /// <returns>A task representing the asynchronous operation.</returns>
     public static async Task SeedRecordsAsync(CancellationToken ct = default)
     {
-        var console = new TestConsole();
-        console.Profile.Capabilities.Interactive = true;
-        console.Profile.Capabilities.Ansi = true;
-        console.Input.PushTextWithEnter("y");
+        var console = TestHarness.CreateTestConsole(confirmMutation: true);
 
         var app = TestHarness.CreateTester("Testing", console);
         await app.RunAsync(["--strategy", "SampleRecordsInsertionStrategy"], ct);

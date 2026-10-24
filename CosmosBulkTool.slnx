@@ -2,10 +2,15 @@
   <Configurations>
     <Platform Name="x64" />
   </Configurations>
-
-  <Project Path="src/Cosmos.BulkOperation.CLI/Cosmos.BulkOperation.CLI.csproj">
-    <Platform Project="x64" />
-  </Project>
-  <Project Path="src/Cosmos.BulkOperation.Samples/Cosmos.BulkOperation.Samples.csproj" />
-  <Project Path="test/Cosmos.BulkOperation.IntegrationTests/Cosmos.BulkOperation.IntegrationTests.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/Cosmos.BulkOperation.CLI/Cosmos.BulkOperation.CLI.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/Cosmos.BulkOperation.Samples/Cosmos.BulkOperation.Samples.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Cosmos.BulkOperation.IntegrationTests/Cosmos.BulkOperation.IntegrationTests.csproj" />
+    <Project Path="test/Cosmos.BulkOperation.TestUtilities/Cosmos.BulkOperation.TestUtilities.csproj" />
+    <Project Path="test/Cosmos.BulkOperation.UnitTests/Cosmos.BulkOperation.UnitTests.csproj" />
+  </Folder>
 </Solution>
