@@ -2,11 +2,11 @@ using System;
 using System.Threading.Tasks;
 
 using Cosmos.BulkOperation.IntegrationTests.Fixtures;
+using Cosmos.BulkOperation.TestUtilities;
 
 using Microsoft.Azure.Cosmos;
 
 using Spectre.Console.Cli.Testing;
-using Spectre.Console.Testing;
 
 namespace Cosmos.BulkOperation.IntegrationTests;
 
@@ -57,19 +57,7 @@ public abstract class BaseCosmosTest : IAsyncLifetime
     /// <param name="confirmMutation">Whether to confirm mutation prompts (for destructive operations).</param>
     /// <returns>A configured CommandAppTester instance.</returns>
     protected static CommandAppTester CreateAppTester(bool confirmMutation = true)
-    {
-        var console = new TestConsole();
-
-        console.Profile.Capabilities.Interactive = true;
-        console.Profile.Capabilities.Ansi = true;
-
-        if (confirmMutation)
-        {
-            console.Input.PushTextWithEnter("y");
-        }
-
-        return TestHarness.CreateTester("Testing", console);
-    }
+        => TestHarness.CreateAppTester(confirmMutation);
 
     /// <inheritdoc/>
     public async ValueTask DisposeAsync()

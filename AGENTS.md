@@ -61,5 +61,7 @@ Standards are enforced via `.editorconfig` and Roslyn analyzers (Roslynator, Son
 
 - `src/Cosmos.BulkOperation.CLI`: Main CLI application using Spectre.Cli
 - `src/Cosmos.BulkOperation.Samples`: Sample strategies with fake data (Bogus)
-- `test/Cosmos.BulkOperation.IntegrationTests`: Requires emulator running
+- `test/Cosmos.BulkOperation.UnitTests`: Unit tests for the CLI application
+- `test/Cosmos.BulkOperation.IntegrationTests`: Integration tests for the CLI application
+- `test/Cosmos.BulkOperation.TestUtilities`: Shared CLI test harness used by the test assemblies
 - Extensibility: Implement `IBulkOperationStrategy` in new classes under `src/Cosmos.BulkOperation.CLI/Strategies/`

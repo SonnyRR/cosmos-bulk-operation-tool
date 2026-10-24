@@ -28,5 +28,6 @@
   <ItemGroup>
     <ProjectReference Include="../../src/Cosmos.BulkOperation.CLI/Cosmos.BulkOperation.CLI.csproj" />
     <ProjectReference Include="../../src/Cosmos.BulkOperation.Samples/Cosmos.BulkOperation.Samples.csproj" />
+    <ProjectReference Include="../Cosmos.BulkOperation.TestUtilities/Cosmos.BulkOperation.TestUtilities.csproj" />
   </ItemGroup>
 </Project>

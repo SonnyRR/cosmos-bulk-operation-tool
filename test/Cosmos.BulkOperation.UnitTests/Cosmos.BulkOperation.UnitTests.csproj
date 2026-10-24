@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.21.0" />
+    <PackageReference Include="Shouldly" Version="4.3.0" />
+    <PackageReference Include="Spectre.Console.Cli.Testing" Version="0.57.2" />
+    <PackageReference Include="Spectre.Console.Testing" Version="0.57.2" />
+    <PackageReference Include="xunit.v3" Version="4.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Cosmos.BulkOperation.CLI/Cosmos.BulkOperation.CLI.csproj" />
+    <ProjectReference Include="../../src/Cosmos.BulkOperation.Samples/Cosmos.BulkOperation.Samples.csproj" />
+    <ProjectReference Include="../Cosmos.BulkOperation.TestUtilities/Cosmos.BulkOperation.TestUtilities.csproj" />
+  </ItemGroup>
+
+</Project>
