@@ -44,6 +44,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Cosmos.BulkOperation.Samples\Cosmos.BulkOperation.Samples.csproj" />
+    <ProjectReference Include="../Cosmos.BulkOperation.Samples/Cosmos.BulkOperation.Samples.csproj" />
   </ItemGroup>
 </Project>

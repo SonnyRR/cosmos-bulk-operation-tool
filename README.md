@@ -97,7 +97,7 @@ The important configuration keys are part of the `appsettings.json` file (connec
 The app also supports a couple of CLI parameters:
 
 ```powershell
-.\Cosmos.BulkOperation.CLI.exe --help
+dotnet run --project src/Cosmos.BulkOperation.CLI -- --help
 
 USAGE:
     cosmos-bulk-operation-tool [OPTIONS]
@@ -136,4 +136,4 @@ Alongside with the base clasesses, I've included 3 sample strategies, that rely 
 - `SampleRecordsInsertionStrategy.cs`
 - `SampleRecordsPatchStrategy.cs`
 
-The strategies can be found under the `Cosmos.BulkOperation.CLI.Strategies` namespace.
+The strategies can be found under the `Cosmos.BulkOperation.CLI.Strategies` namespace (in the `src/Cosmos.BulkOperation.CLI/Strategies` folder).

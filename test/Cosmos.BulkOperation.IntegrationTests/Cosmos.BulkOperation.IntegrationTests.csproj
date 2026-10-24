@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Cosmos.BulkOperation.CLI\Cosmos.BulkOperation.CLI.csproj" />
-    <ProjectReference Include="..\Cosmos.BulkOperation.Samples\Cosmos.BulkOperation.Samples.csproj" />
+    <ProjectReference Include="../../src/Cosmos.BulkOperation.CLI/Cosmos.BulkOperation.CLI.csproj" />
+    <ProjectReference Include="../../src/Cosmos.BulkOperation.Samples/Cosmos.BulkOperation.Samples.csproj" />
   </ItemGroup>
 </Project>

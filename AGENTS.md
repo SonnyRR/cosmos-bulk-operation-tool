@@ -18,10 +18,10 @@ dotnet test --no-build --output Detailed
 
 ```bash
 # Dry-run mode (debugging)
-dotnet run --project Cosmos.BulkOperation.CLI/Cosmos.BulkOperation.CLI.csproj -- --dry-run
+dotnet run --project src/Cosmos.BulkOperation.CLI/Cosmos.BulkOperation.CLI.csproj -- --dry-run
 
 # Run with specific strategy
-dotnet run --project Cosmos.BulkOperation.CLI/Cosmos.BulkOperation.CLI.csproj -- --strategy SampleRecordsInsertionStrategy
+dotnet run --project src/Cosmos.BulkOperation.CLI/Cosmos.BulkOperation.CLI.csproj -- --strategy SampleRecordsInsertionStrategy
 ```
 
 ## Emulator for Testing
@@ -36,7 +36,7 @@ The `vnext-preview` image starts faster and doesn't require SSL cert imports. Us
 
 ## Adding New Strategies
 
-1. Create a new class in `Cosmos.BulkOperation.CLI/Strategies/` implementing `IBulkOperationStrategy`
+1. Create a new class in `src/Cosmos.BulkOperation.CLI/Strategies/` implementing `IBulkOperationStrategy`
 2. Add `[SettingsKey("YourConfigSection")]` attribute to the class
 3. Add the corresponding config section in `appsettings.json`:
 
@@ -59,7 +59,7 @@ Standards are enforced via `.editorconfig` and Roslyn analyzers (Roslynator, Son
 
 ## Architecture
 
-- `Cosmos.BulkOperation.CLI`: Main CLI application using Spectre.Cli
-- `Cosmos.BulkOperation.Samples`: Sample strategies with fake data (Bogus)
-- `Cosmos.BulkOperation.IntegrationTests`: Requires emulator running
-- Extensibility: Implement `IBulkOperationStrategy` in new classes under `Strategies/`
+- `src/Cosmos.BulkOperation.CLI`: Main CLI application using Spectre.Cli
+- `src/Cosmos.BulkOperation.Samples`: Sample strategies with fake data (Bogus)
+- `test/Cosmos.BulkOperation.IntegrationTests`: Requires emulator running
+- Extensibility: Implement `IBulkOperationStrategy` in new classes under `src/Cosmos.BulkOperation.CLI/Strategies/`
