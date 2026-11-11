@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
@@ -23,5 +22,4 @@
     <ProjectReference Include="../../src/Cosmos.BulkOperation.Samples/Cosmos.BulkOperation.Samples.csproj" />
     <ProjectReference Include="../Cosmos.BulkOperation.TestUtilities/Cosmos.BulkOperation.TestUtilities.csproj" />
   </ItemGroup>
-
 </Project>
